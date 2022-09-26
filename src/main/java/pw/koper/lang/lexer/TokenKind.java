@@ -1,12 +1,13 @@
 package pw.koper.lang.lexer;
 
+import java.util.regex.Pattern;
+
 public enum TokenKind {
     UNKNOWN("UNKNOWN"),
     EOF("EOF"),
     NAME("name"),
     NUMBER("number"),
     STRING("string"),
-    STRING_INTEGER("string_integer"),
     CHAR("char"),
     PLUS("+"),
     MINUS("-"),
@@ -29,9 +30,8 @@ public enum TokenKind {
     LEFT_ARROW("<-"),
     AMPLIFIER("&"),
     HASH("#"),
-    DOLLAR("$"),
     AT("@"),
-    STRING_DOLLAR("\\$"),
+    STRING_DOLLAR("$"),
     LEFT_SHIFT("<<"),
     RIGHT_SHIFT(">>"),
     UNSIGNED_RIGHT_SHIFT(">>>"),
