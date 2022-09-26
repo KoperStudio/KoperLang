@@ -17,7 +17,7 @@ public class Token {
         this.end = start + literal.length();
     }
 
-    public Token(TokenKind kind,  int lineNumber, int column, int start, int len) {
+    public Token(TokenKind kind, int lineNumber, int column, int start, int len) {
         this.kind = kind;
         this.literal = kind.literal;
         this.lineNumber = lineNumber;

@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="502ec4a8-793b-41a0-88fc-d251cb823bf5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/example-code.koper" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CodeError.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CompilationException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/KoperLang.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/KoperLang.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Lexer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Token.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" afterDir="false" />
