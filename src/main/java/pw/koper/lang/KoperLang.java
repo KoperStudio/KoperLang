@@ -11,7 +11,7 @@ import java.util.LinkedList;
 public class KoperLang {
     public static void compile(String code) {
         Lexer lexer = new Lexer(code);
-        LinkedList<Token> tokens = new LinkedList<>();
+        LinkedList<Token> tokens;
         try {
             tokens = lexer.lex();
         } catch (CompilationException e) {

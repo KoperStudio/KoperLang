@@ -79,10 +79,12 @@ public enum TokenKind {
     KEY_PRIVATE("private"),
     KEY_STATIC("static"),
     KEY_CLASS("class"),
+    KEY_VOID("void"),
     KEY_INTERFACE("interface"),
     KEY_ENUM("enum"),
     KEY_ABSTRACT("abstract"),
     KEY_VOLATILE("volatile"),
+    KEY_DATA("data"),
     KEY_SYNC("synchronous"),
     KEY_RUN("run"),
     KEY_RUNASYNC("runasync");

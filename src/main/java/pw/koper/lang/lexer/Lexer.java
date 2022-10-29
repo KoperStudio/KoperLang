@@ -5,6 +5,7 @@ import pw.koper.lang.common.CompilationException;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.regex.Pattern;
 
 public class Lexer {
     private static final char[] skip = {
@@ -18,7 +19,7 @@ public class Lexer {
     private final String input;
     public Lexer(String code) {
 //        input.append(code);
-        this.input = code;
+        this.input = code.replace(";", "\n");
     }
 
 //    public String getRawInput() {
@@ -39,12 +40,13 @@ public class Lexer {
                 break;
             }
             if(next.kind.equals(TokenKind.EOF)) {
-                System.out.println("EOF");
+                System.out.println("Got to EOF");
+                tokens.add(atom(TokenKind.EOF));
                 return tokens;
             } else if(next.kind.equals(TokenKind.UNKNOWN)) {
                 errors.add(new CodeError("Unexpected token", next.start, next.end));
             }
-            tokens.add(next);
+            tokens.addLast(next);
         }
         return tokens;
     }
@@ -58,15 +60,16 @@ public class Lexer {
     }
 
     private char peek() {
-        if((input.length() - 1) == position) {
+        try {
+            return input.charAt(position);
+        } catch (Exception exception) {
             return '\0';
         }
-        return input.charAt(position);
+
     }
 
     private Token next() {
         if(spaces()) {
-            System.out.println("EOF");
             return atom(TokenKind.EOF);
         }
         char current = peek();
@@ -75,16 +78,99 @@ public class Lexer {
         }
 
         char possibleQuote = isQuote(current);
-        if(possibleQuote != '\0') {
-            add();
-            return string(possibleQuote);
-        } else if(isIdentifierChar(current)) {
-            return identifier();
-        } else {
-            return somethingElse();
+        switch (current){
+            case '@' -> {
+                return identifier();
+            }
+            case '{' -> {
+                return atom(TokenKind.LEFT_CURLY_BRACE);
+            }
+            case '}' -> {
+                return atom(TokenKind.RIGHT_CURLY_BRACE);
+            }
+            case '[' -> {
+                return atom(TokenKind.LEFT_BRACE);
+            }
+            case ']' -> {
+                return atom(TokenKind.RIGHT_BRACE);
+            }
+            case '(' -> {
+                return atom(TokenKind.LEFT_PAREN);
+            }
+            case ')' -> {
+                return atom(TokenKind.RIGHT_PAREN);
+            }
+            default -> {
+                if (possibleQuote != '\0') {
+                    add();
+                    return string(possibleQuote);
+                } else if (isIdentifierChar(current)) {
+                    return identifier();
+                } else if (isNumber(current)) {
+                    return number();
+                } else if (isAssignments(current)) {
+                    return assignment();
+                } else {
+                    return somethingElse();
+                }
+            }
         }
 
+
 //        return atom(TokenKind.UNKNOWN);
+    }
+
+    private Token assignment() {
+        add();
+        return atom(TokenKind.ASSIGN);
+    }
+
+    private Token number() {
+        int start = position;
+        boolean gotPeriod = false;
+        boolean gotX = false;
+        while(!isSpace(peek())) {
+            add();
+            if(getAt(position) == '.') {
+                if(gotPeriod) {
+                    errors.add(new CodeError("Invalid number literal", start, position));
+                    return null;
+                }
+                gotPeriod = true;
+            }
+            if(getAt(position) == 'x') {
+                if(gotX) {
+                    errors.add(new CodeError("Invalid hexadecimal number literal", start, position));
+                    return null;
+                }
+                gotX = true;
+            }
+        }
+        String literal = getAt(start, position);
+        if(!gotX) {
+            if(isNumeric(literal)) {
+                return new Token(TokenKind.NUMBER, literal, line, column, start);
+            } else {
+                errors.add(new CodeError("Invalid number literal", start, position));
+                return null;
+            }
+        } else {
+            try {
+                Long.parseLong(literal);
+                return new Token(TokenKind.NUMBER, literal, line, column, start);
+            } catch (Exception ignored) {}
+        }
+        errors.add(new CodeError("Invalid number literal", start, position));
+        return null;
+    }
+
+    private final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+
+    public boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        return pattern.matcher(strNum).matches();
     }
 
     private Token somethingElse() {
@@ -122,7 +208,7 @@ public class Lexer {
             start++;
             add();
         }
-        while(!isSpace(peek())) add();
+        while(isIdentifierChar(peek())) add();
         String literal = getAt(start, position);
         TokenKind result = TokenKind.getByLiteral(literal);
 
@@ -152,17 +238,18 @@ public class Lexer {
     }
 
     private Token atom(TokenKind kind) {
-        return new Token(kind, line, column, position + 1, 1);
+        return new Token(kind, line, column, ++position, 1);
     }
 
     private boolean isSpace(char possible) {
-        if(possible == '\n') {
+        if(possible == '\n' || possible == '\r') {
             line++;
-            column = 1;
-            return false;
-        } else if(possible == '\0') {
+            column = 0;
             return true;
         }
+//        else if(possible == '\0') {
+//            return true;
+//        }
         for(char skipping : skip) {
             if(possible == skipping) {
                 return true;
@@ -179,9 +266,10 @@ public class Lexer {
         return '\0';
     }
     private boolean isIdentifierChar(char current) {
+        if(isSpace(current)) return false;
         return switch (current) {
             default -> false;
-            case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ->
+            case 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '.' ->
                     true;
         };
     }
@@ -193,4 +281,21 @@ public class Lexer {
                     true;
         };
     }
+
+    private boolean isAssignments(char current) {
+        return switch (current) {
+            default -> false;
+            case '*', '/', '+', '-', '=' ->
+                    true;
+        };
+    }
+
+    private boolean canContinueNumber(char current) {
+        return switch (current) {
+            default -> false;
+            case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '_' ->
+                    true;
+        };
+    }
+
 }
