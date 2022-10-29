@@ -12,7 +12,9 @@ public class Main {
         System.out.println("Starting");
         StringBuilder code = new StringBuilder();
         try (Stream<String> st = Files.lines(Paths.get(testPath))) {
-            st.forEach(code::append);
+            st.forEach(string -> {
+                code.append(string).append("\n");
+            });
         } catch (IOException ex) {
             ex.printStackTrace();
         }

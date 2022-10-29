@@ -33,20 +33,21 @@ public class Lexer {
     private final LinkedList<Token> tokens = new LinkedList<>();
 
     public LinkedList<Token> lex() throws CompilationException {
-
         while(true) {
             Token next = next();
             if(next == null) {
                 break;
             }
             if(next.kind.equals(TokenKind.EOF)) {
-                System.out.println("Got to EOF");
                 tokens.add(atom(TokenKind.EOF));
                 return tokens;
             } else if(next.kind.equals(TokenKind.UNKNOWN)) {
                 errors.add(new CodeError("Unexpected token", next.start, next.end));
             }
             tokens.addLast(next);
+        }
+        if(!errors.isEmpty()) {
+            throw new CompilationException(errors);
         }
         return tokens;
     }
@@ -65,7 +66,6 @@ public class Lexer {
         } catch (Exception exception) {
             return '\0';
         }
-
     }
 
     private Token next() {
@@ -115,9 +115,6 @@ public class Lexer {
                 }
             }
         }
-
-
-//        return atom(TokenKind.UNKNOWN);
     }
 
     private Token assignment() {
@@ -131,14 +128,14 @@ public class Lexer {
         boolean gotX = false;
         while(!isSpace(peek())) {
             add();
-            if(getAt(position) == '.') {
+            if(peek() == '.') {
                 if(gotPeriod) {
                     errors.add(new CodeError("Invalid number literal", start, position));
                     return null;
                 }
                 gotPeriod = true;
             }
-            if(getAt(position) == 'x') {
+            if(peek() == 'x') {
                 if(gotX) {
                     errors.add(new CodeError("Invalid hexadecimal number literal", start, position));
                     return null;
@@ -234,6 +231,10 @@ public class Lexer {
             add();
         }
         String string = input.substring(start, position);
+        if(string.length() > 1 && possibleQuote == '\'') {
+            errors.add(new CodeError("Character quote is longer than 1"));
+            return null;
+        }
         return new Token(TokenKind.STRING, string, line, column, position);
     }
 

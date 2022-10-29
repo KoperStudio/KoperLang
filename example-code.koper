@@ -1,6 +1,6 @@
 import com.java;
 
-@Test
+@Test("GOODBYE")
 public class Hello {
 
     @Override
