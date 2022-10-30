@@ -79,6 +79,14 @@ public class Lexer {
 
         char possibleQuote = isQuote(current);
         switch (current){
+            case '"' -> {
+                add();
+                return string('"');
+            }
+            case '\'' -> {
+                add();
+                return string('\'');
+            }
             case '@' -> {
                 return identifier();
             }
@@ -101,10 +109,7 @@ public class Lexer {
                 return atom(TokenKind.RIGHT_PAREN);
             }
             default -> {
-                if (possibleQuote != '\0') {
-                    add();
-                    return string(possibleQuote);
-                } else if (isIdentifierChar(current)) {
+                if (isIdentifierChar(current)) {
                     return identifier();
                 } else if (isNumber(current)) {
                     return number();
@@ -222,9 +227,9 @@ public class Lexer {
     }
 
     private Token string(char possibleQuote) {
-        int start = ++position;
-        while(peek() != possibleQuote) {
-            if((input.length() - 1 ) >= position) {
+        int start = position;
+        while(peek() == possibleQuote) {
+            if((input.length() - 1 ) <= position) {
                 errors.add(new CodeError("Unfinished string", start, position));
                 return null;
             }
@@ -235,6 +240,7 @@ public class Lexer {
             errors.add(new CodeError("Character quote is longer than 1"));
             return null;
         }
+        add();
         return new Token(TokenKind.STRING, string, line, column, position);
     }
 

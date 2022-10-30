@@ -16,7 +16,7 @@ public class KoperLang {
             tokens = lexer.lex();
         } catch (CompilationException e) {
             for(CodeError error : e.getErrors()) {
-                System.out.println(error.render());
+                System.out.println("Error: "+error.render());
             }
             return;
         }
