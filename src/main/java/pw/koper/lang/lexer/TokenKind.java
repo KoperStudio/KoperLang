@@ -92,6 +92,7 @@ public enum TokenKind {
     KEY_PACKAGE("package"),
     KEY_SYNC("synchronous"),
     KEY_RUN("run"),
+    KEY_AWAIT("await"),
     KEY_RUNASYNC("runasync");
     public final int length;
     public final String literal;

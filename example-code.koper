@@ -2,7 +2,7 @@ package me.mrfunny;
 
 import com.java;
 
-@Test()
+@Test("GOODBYE")
 public class Hello {
 
     @Override
@@ -10,6 +10,6 @@ public class Hello {
     }
 
     public static void main(String[] args) {
-        mrfunny.hello.world(123, System.out, getMe(), i.like())
+        mrfunny.hello.world(123.123, System.out, getMe(), i.like(), "other)
     }
 }

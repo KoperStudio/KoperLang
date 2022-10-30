@@ -78,14 +78,11 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
             return atom(TokenKind.EOF);
         }
 
-        char possibleQuote = isQuote(current);
         switch (current){
             case '"' -> {
-                add();
                 return string('"');
             }
             case '\'' -> {
-                add();
                 return string('\'');
             }
             case '@' -> {
@@ -222,7 +219,7 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
         TokenKind result = TokenKind.getByLiteral(literal);
 
         if(annotation && !result.equals(TokenKind.UNKNOWN)) {
-            error("Annotation can't have keyword name", start);
+            error("Annotation can't have a keyword name", position + 1, start);
             return null;
         } else if(annotation) {
             return new Token(TokenKind.ANNOTATION, literal, line, column, start);
@@ -234,8 +231,9 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
     }
 
     private Token string(char possibleQuote) {
+        add();
         int start = position;
-        while(peek() == possibleQuote) {
+        while(peek() != possibleQuote) {
             if((input.length() - 1 ) <= position) {
                 error("Unfinished string", start);
                 return null;
@@ -256,7 +254,7 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
     }
 
     private void error(String label, int start, int end){
-        int startOfLine = -1;
+        int startOfLine;
         int lineColumn = end;
         while(lineColumn >= 0 && input.charAt(lineColumn) != '\n'){
             lineColumn--;
@@ -264,12 +262,22 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
         lineColumn++;
         startOfLine = lineColumn;
         StringBuilder builder = new StringBuilder();
-
-        while(input.charAt(lineColumn) != '\n'){
-            builder.append(input.charAt(lineColumn));
-            lineColumn++;
+        try {
+            while(input.charAt(lineColumn) != '\n'){
+                builder.append(input.charAt(lineColumn));
+                lineColumn++;
+            }
+        } catch (StringIndexOutOfBoundsException exception) {
+            startOfLine = start;
         }
-        CodeError error = new CodeError(this, label, builder.toString(), start - startOfLine, column);
+
+
+        int toStart = start - startOfLine;
+        if(column == 0) {
+            column += start - end;
+            toStart = start - lineColumn;
+        }
+        CodeError error = new CodeError(this, label, builder.toString(), toStart, column);
         errors.add(error);
     }
 
