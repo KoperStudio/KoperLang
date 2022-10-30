@@ -1,11 +1,10 @@
 import com.java;
 
-@Test("GOODBYE")
+@Test()
 public class Hello {
 
     @Override
     public void onEnable(Arg arg) {
-
     }
 
     public static void main(String[] args) {
