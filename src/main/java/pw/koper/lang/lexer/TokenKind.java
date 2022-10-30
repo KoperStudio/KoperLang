@@ -89,6 +89,7 @@ public enum TokenKind {
     KEY_CATCH("catch"),
     KEY_THROWS("throws"),
     KEY_OR("or"),
+    KEY_PACKAGE("package"),
     KEY_SYNC("synchronous"),
     KEY_RUN("run"),
     KEY_RUNASYNC("runasync");

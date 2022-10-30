@@ -2,24 +2,23 @@ package pw.koper.lang.lexer;
 
 import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
+import pw.koper.lang.common.Cursor;
 import pw.koper.lang.common.KoperCompiler;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
-public class Lexer {
+public class Lexer extends Cursor {
     private static final char[] skip = {
       '\r', '\n', '\t', 8, 9, 11, 12, 32, ' ', '\0'
     };
-    private int line = 1;
-    private int column = 1;
-    private TokenKind currentKind;
     private final HashSet<CodeError> errors = new HashSet<>(1);
-    private int position = 0;
+
     private final String input;
+
     public Lexer(KoperCompiler compiler, String code) {
-//        input.append(code);
+        this.fileName = compiler.getCompilingFile().getName();
         this.input = code.replace(";", "\n");
     }
 
@@ -91,6 +90,9 @@ public class Lexer {
             case '@' -> {
                 return identifier();
             }
+            case ',' -> {
+                return atom(TokenKind.COMMA);
+            }
             case '{' -> {
                 return atom(TokenKind.LEFT_CURLY_BRACE);
             }
@@ -133,7 +135,11 @@ public class Lexer {
         boolean gotPeriod = false;
         boolean gotX = false;
         while(!isSpace(peek())) {
+            if(isDelimiter(peek())) {
+                break;
+            }
             add();
+
             if(peek() == '.') {
                 if(gotPeriod) {
                     error("Invalid number literal", start);
@@ -181,11 +187,10 @@ public class Lexer {
         if(spaces()) {
             return atom(TokenKind.EOF);
         }
-        System.out.println("Finished");
         String literal = getAt(start, position);
         TokenKind result = TokenKind.getByLiteral(literal);
         if(result.equals(TokenKind.UNKNOWN)) {
-            errors.add(new CodeError("Unexpected EOF"));
+            errors.add(new CodeError(this, "Unexpected EOF"));
             return atom(TokenKind.EOF);
         } else {
             return new Token(result, result.literal, line, column, start);
@@ -263,7 +268,7 @@ public class Lexer {
             builder.append(input.charAt(lineColumn));
             lineColumn++;
         }
-        CodeError error = new CodeError(label, builder.toString(), start-startOfLine, column);
+        CodeError error = new CodeError(this, label, builder.toString(), start - startOfLine, column);
         errors.add(error);
     }
 
@@ -272,7 +277,7 @@ public class Lexer {
     }
 
     private void error(String label){
-        CodeError error = new CodeError(label);
+        CodeError error = new CodeError(this, label);
         errors.add(error);
     }
 
@@ -282,9 +287,7 @@ public class Lexer {
             column = 0;
             return true;
         }
-//        else if(possible == '\0') {
-//            return true;
-//        }
+
         for(char skipping : skip) {
             if(possible == skipping) {
                 return true;
@@ -325,12 +328,10 @@ public class Lexer {
         };
     }
 
-    private boolean canContinueNumber(char current) {
+    private boolean isDelimiter(char current) {
         return switch (current) {
             default -> false;
-            case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '_' ->
-                    true;
+            case ',', ';' -> true;
         };
     }
-
 }
