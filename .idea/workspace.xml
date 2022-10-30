@@ -5,14 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="502ec4a8-793b-41a0-88fc-d251cb823bf5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/Cursor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/gen/BytecodeGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/ExpressionAST.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/Node.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/StatementAST.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example-code.koper" beforeDir="false" afterPath="$PROJECT_DIR$/example-code.koper" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CodeError.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CodeError.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/Cursor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CompilationStage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +30,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -46,14 +49,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/tunay/Desktop/Klasörler/Projects/KoperLang&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "last_opened_file_path": "C:/Users/tunay/Desktop/Klasörler/Projects/KoperLang",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="pw.koper.lang.Main" />

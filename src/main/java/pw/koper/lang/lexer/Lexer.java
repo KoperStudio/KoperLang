@@ -2,14 +2,14 @@ package pw.koper.lang.lexer;
 
 import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
-import pw.koper.lang.common.Cursor;
+import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
-public class Lexer extends Cursor {
+public class Lexer extends CompilationStage<LinkedList<Token>> {
     private static final char[] skip = {
       '\r', '\n', '\t', 8, 9, 11, 12, 32, ' ', '\0'
     };
@@ -32,7 +32,8 @@ public class Lexer extends Cursor {
     }
     private final LinkedList<Token> tokens = new LinkedList<>();
 
-    public LinkedList<Token> lex() throws CompilationException {
+    @Override
+    public LinkedList<Token> proceed() throws CompilationException {
         while(true) {
             Token next = next();
             if(next == null) {
