@@ -11,12 +11,15 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Starting");
         StringBuilder code = new StringBuilder();
-        try (Stream<String> st = Files.lines(Paths.get(testPath))) {
-            st.forEach(string -> {
-                code.append(string).append("\n");
-            });
+        /*try (Stream<String> st = Files.lines(Paths.get(testPath))) {
+            st.forEach(code::append);
         } catch (IOException ex) {
             ex.printStackTrace();
+        }*/
+        byte[] readed = Files.readAllBytes(Paths.get(testPath));
+        for(byte b : readed){
+            System.out.println((char) b);
+            code.append((char) b);
         }
         KoperLang.compile(code.toString());
     }
