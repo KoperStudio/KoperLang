@@ -2,6 +2,7 @@ package pw.koper.lang.lexer;
 
 import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
+import pw.koper.lang.common.KoperCompiler;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,7 +18,7 @@ public class Lexer {
     private final HashSet<CodeError> errors = new HashSet<>(1);
     private int position = 0;
     private final String input;
-    public Lexer(String code) {
+    public Lexer(KoperCompiler compiler, String code) {
 //        input.append(code);
         this.input = code.replace(";", "\n");
     }

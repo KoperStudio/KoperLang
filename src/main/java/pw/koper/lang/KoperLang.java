@@ -9,23 +9,7 @@ import java.io.File;
 import java.util.LinkedList;
 
 public class KoperLang {
-    public static void compile(String code) {
-        Lexer lexer = new Lexer(code);
-        LinkedList<Token> tokens;
-        try {
-            tokens = lexer.lex();
-        } catch (CompilationException e) {
-            for(CodeError error : e.getErrors()) {
-                System.out.println("Error: "+error.render());
-            }
-            return;
-        }
-        for(Token token : tokens) {
-            System.out.println(token.kind + ": " + token.literal);
-        }
-        // parse
-    }
-
+    // TODO: used to build source directory
     public static void build(File directory) {
 
     }

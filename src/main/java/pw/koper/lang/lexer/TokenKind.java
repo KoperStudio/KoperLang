@@ -85,6 +85,10 @@ public enum TokenKind {
     KEY_ABSTRACT("abstract"),
     KEY_VOLATILE("volatile"),
     KEY_DATA("data"),
+    KEY_TRY("try"),
+    KEY_CATCH("catch"),
+    KEY_THROWS("throws"),
+    KEY_OR("or"),
     KEY_SYNC("synchronous"),
     KEY_RUN("run"),
     KEY_RUNASYNC("runasync");
