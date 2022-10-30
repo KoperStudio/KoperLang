@@ -42,7 +42,7 @@ public class Lexer {
                 tokens.add(atom(TokenKind.EOF));
                 return tokens;
             } else if(next.kind.equals(TokenKind.UNKNOWN)) {
-                errors.add(new CodeError("Unexpected token", next.start, next.end));
+                error("Unexpected token", next.start);
             }
             tokens.addLast(next);
         }
@@ -135,14 +135,14 @@ public class Lexer {
             add();
             if(peek() == '.') {
                 if(gotPeriod) {
-                    errors.add(new CodeError("Invalid number literal", start, position));
+                    error("Invalid number literal", start);
                     return null;
                 }
                 gotPeriod = true;
             }
             if(peek() == 'x') {
                 if(gotX) {
-                    errors.add(new CodeError("Invalid hexadecimal number literal", start, position));
+                    error("Invalid hexadecimal number literal", start);
                     return null;
                 }
                 gotX = true;
@@ -153,7 +153,7 @@ public class Lexer {
             if(isNumeric(literal)) {
                 return new Token(TokenKind.NUMBER, literal, line, column, start);
             } else {
-                errors.add(new CodeError("Invalid number literal", start, position));
+                error("Invalid number literal", start);
                 return null;
             }
         } else {
@@ -162,7 +162,7 @@ public class Lexer {
                 return new Token(TokenKind.NUMBER, literal, line, column, start);
             } catch (Exception ignored) {}
         }
-        errors.add(new CodeError("Invalid number literal", start, position));
+        error("Invalid number literal", start);
         return null;
     }
 
@@ -215,7 +215,7 @@ public class Lexer {
         TokenKind result = TokenKind.getByLiteral(literal);
 
         if(annotation && !result.equals(TokenKind.UNKNOWN)) {
-            errors.add(new CodeError("Annotation can't have keyword name", start, position));
+            error("Annotation can't have keyword name", start);
             return null;
         } else if(annotation) {
             return new Token(TokenKind.ANNOTATION, literal, line, column, start);
@@ -230,14 +230,14 @@ public class Lexer {
         int start = position;
         while(peek() == possibleQuote) {
             if((input.length() - 1 ) <= position) {
-                errors.add(new CodeError("Unfinished string", start, position));
+                error("Unfinished string", start);
                 return null;
             }
             add();
         }
         String string = input.substring(start, position);
         if(string.length() > 1 && possibleQuote == '\'') {
-            errors.add(new CodeError("Character quote is longer than 1"));
+            error("Character quote is longer than 1");
             return null;
         }
         add();
@@ -246,6 +246,33 @@ public class Lexer {
 
     private Token atom(TokenKind kind) {
         return new Token(kind, line, column, ++position, 1);
+    }
+
+    private void error(String label, int start, int end){
+        int startOfLine = -1;
+        int lineColumn = end;
+        while(lineColumn >= 0 && input.charAt(lineColumn) != '\n'){
+            lineColumn--;
+        }
+        lineColumn++;
+        startOfLine = lineColumn;
+        StringBuilder builder = new StringBuilder();
+
+        while(input.charAt(lineColumn) != '\n'){
+            builder.append(input.charAt(lineColumn));
+            lineColumn++;
+        }
+        CodeError error = new CodeError(label, builder.toString(), start-startOfLine, column);
+        errors.add(error);
+    }
+
+    private void error(String label, int start){
+        error(label, start, position);
+    }
+
+    private void error(String label){
+        CodeError error = new CodeError(label);
+        errors.add(error);
     }
 
     private boolean isSpace(char possible) {
