@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 
 public class Main {
     private static final String testPath = "./example-code.koper";
+    public static final boolean DEBUG = false;
     public static void main(String[] args) throws IOException {
         new KoperCompiler(new File(testPath)).compile();
     }

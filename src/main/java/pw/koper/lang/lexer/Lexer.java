@@ -1,5 +1,7 @@
 package pw.koper.lang.lexer;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.CompilationStage;
@@ -233,14 +235,36 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
     private Token string(char possibleQuote) {
         add();
         int start = position;
-        while(peek() != possibleQuote) {
-            if((input.length() - 1 ) <= position) {
+        boolean escape = false;
+        while (true) {
+            char current = peek();
+            if (current == '\\' && !escape) {
+                escape = true;
+                add();
+                continue;
+            }
+            if (escape) {
+//                add();
+                switch (current) {
+                    case '\\', 't', 'b', 'n', 'r', 'f', '\'', '"' -> {
+                        add();
+                        escape = false;
+                        continue;
+                    }
+                    default -> {
+                        error("Invalid escape string", position, position +1);
+                        return null;
+                    }
+                }
+            }
+            if (current == possibleQuote) break;
+            if ((input.length() - 1) <= position) {
                 error("Unfinished string", start);
                 return null;
             }
             add();
         }
-        String string = input.substring(start, position);
+        String string = StringEscapeUtils.unescapeJava(input.substring(start, position));
         if(string.length() > 1 && possibleQuote == '\'') {
             error("Character quote is longer than 1");
             return null;
