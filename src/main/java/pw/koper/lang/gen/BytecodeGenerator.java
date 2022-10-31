@@ -39,6 +39,10 @@ public class BytecodeGenerator extends CompilationStage<byte[]> {
             init.visitLineNumber(11, l1);
             init.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
             init.visitVarInsn(Opcodes.ALOAD, 1);
+            init.visitInsn(Opcodes.ICONST_0);
+//            init.visitLdcInsn(1);
+            init.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/util/List", "get", "(I)Ljava/lang/Object;", true);
+            init.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/String");
             init.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
             init.visitInsn(Opcodes.RETURN);
             Label l2 = new Label();
