@@ -2,6 +2,7 @@ package pw.koper.lang.lexer;
 
 import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.KoperCompiler;
+import pw.koper.lang.common.internal.ClassType;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,8 +36,17 @@ public class Token {
 
     public boolean isClassDeclarationStart() {
         return switch (kind) {
-            case KEY_PUBLIC, KEY_STATIC, KEY_CLASS, KEY_ABSTRACT, KEY_DATA, KEY_PRIVATE -> true;
+            case KEY_PUBLIC, KEY_STATIC, KEY_CLASS, KEY_INTERFACE, KEY_ENUM, KEY_ABSTRACT, KEY_DATA, KEY_PRIVATE -> true;
             default -> false;
+        };
+    }
+
+    public ClassType toClassType() {
+        return switch (kind) {
+            case KEY_CLASS -> ClassType.CLASS;
+            case KEY_ENUM -> ClassType.ENUM;
+            case KEY_INTERFACE -> ClassType.INTERFACE;
+            default -> ClassType.INVALID;
         };
     }
 

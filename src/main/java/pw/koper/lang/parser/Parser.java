@@ -4,6 +4,7 @@ import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
+import pw.koper.lang.common.internal.ClassType;
 import pw.koper.lang.common.internal.KoperClass;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.lexer.TokenKind;
@@ -46,6 +47,7 @@ public class Parser extends CompilationStage<KoperClass> {
         // do loop because previous method already goes for next token for us
         String superClass = "java/lang/Object";
         HashSet<String> interfaces = new HashSet<>();
+        ClassType type = null;
         do {
             switch (currentToken.kind) {
                 case KEY_PRIVATE -> result.isPublic = false;
@@ -57,6 +59,16 @@ public class Parser extends CompilationStage<KoperClass> {
                 case KEY_STATIC ->  result.isStatic = true;
                 case KEY_DATA -> result.isData = true;
             }
+            ClassType possible = currentToken.toClassType();
+            if(!possible.equals(ClassType.INVALID)) {
+                if(type == null) {
+                    type = possible;
+                } else {
+                    invalidToken("Class type already declared", currentToken);
+                    return;
+                }
+            }
+
         } while(!nextToken().isClassDeclarationStart());
         nextToken();
         if(!currentToken.isStrict()) {

@@ -121,4 +121,8 @@ public enum TokenKind {
         return UNKNOWN;
     }
 
+    public boolean is(TokenKind other) {
+        return this == other;
+    }
+
 }
