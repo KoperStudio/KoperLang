@@ -16,13 +16,4 @@ public class AstImpl {
         String toImport;
     }
 
-    @AllArgsConstructor
-    public static class ClassDeclaration extends StatementAST {
-        boolean isPublic;
-        boolean isAbstract;
-        boolean isStatic;
-        boolean isData;
-        String superClass;
-        Set<String> interfaces;
-    }
 }

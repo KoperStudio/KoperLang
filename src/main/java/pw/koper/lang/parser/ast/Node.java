@@ -1,15 +1,14 @@
 package pw.koper.lang.parser.ast;
 
 import lombok.SneakyThrows;
+import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 
 public interface Node {
-    default Object generateBytecode() {
-        return null;
-    }
 
+    default void generateBytecode(MethodVisitor visitor) {}
     @SneakyThrows
     default String asString() {
         StringBuilder result = new StringBuilder(this.getClass().getSimpleName()).append("{");

@@ -2,6 +2,7 @@ package pw.koper.lang.common;
 
 import lombok.Getter;
 import lombok.Setter;
+import pw.koper.lang.common.internal.KoperClass;
 import pw.koper.lang.gen.BytecodeGenerator;
 import pw.koper.lang.lexer.Lexer;
 import pw.koper.lang.lexer.Token;
@@ -48,23 +49,24 @@ public class KoperCompiler {
 
         Parser parser = new Parser(this);
         this.stage = parser;
+        KoperClass result = null;
         try {
-            ast = parser.proceed();
+            result = parser.proceed();
         } catch (CompilationException e) {
             for(CodeError error : e.getErrors()) {
                 System.err.println("Error: " + error.render());
             }
         }
 
-        for(Node astNode : ast) {
-            System.out.println(astNode.asString());
+//        for(Node astNode : ast) {
+//            System.out.println(astNode.asString());
+//        }
+        if(result == null) {
+            System.err.println("Failed to compile AST");
         }
-
         String targetFile = file.getName().replace(".koper", ".class");
-        BytecodeGenerator generator = new BytecodeGenerator(this);
-        this.stage = generator;
         try {
-            byte[] resultedFile = generator.proceed();
+            byte[] resultedFile = result.generateClass();
             if(Arrays.equals(resultedFile, BytecodeGenerator.EMPTY)) {
                 System.out.println("Empty output.");
                 return;

@@ -3,7 +3,7 @@ package me.mrfunny;
 import com.java;
 
 @Test("GOODBYE")
-public class Hello {
+public class TestClass {
 
     @Override
     public void onEnable(Arg arg) {

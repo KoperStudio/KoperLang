@@ -4,6 +4,7 @@ import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
+import pw.koper.lang.common.internal.KoperClass;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.lexer.TokenKind;
 import pw.koper.lang.parser.ast.AstImpl;
@@ -14,45 +15,47 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import static pw.koper.lang.lexer.TokenKind.*;
 
-public class Parser extends CompilationStage<LinkedList<Node>> {
+public class Parser extends CompilationStage<KoperClass> {
 
     private final KoperCompiler compiler;
     private final LinkedList<Node> tree = new LinkedList<>();
     private final Iterator<Token> tokenIterator;
     private Token currentToken;
+    private String initialFileName;
     public Parser(KoperCompiler compiler) {
         this.compiler = compiler;
         this.tokenIterator = compiler.getTokens().iterator();
+        this.initialFileName = compiler.getCompilingFile().getName();
+        this.result = new KoperClass(initialFileName);
     }
 
+    private final KoperClass result;
+
     @Override
-    public LinkedList<Node> proceed() throws CompilationException {
+    public KoperClass proceed() throws CompilationException {
+
         parseHead();
         parseClassDeclaration();
         if(errors.size() != 0) {
             throw new CompilationException(errors);
         }
-        return tree;
+        return result;
     }
 
     private void parseClassDeclaration() {
         // do loop because previous method already goes for next token for us
-        boolean isAbstract = false;
-        boolean isStatic = false;
-        boolean isData = false;
-        boolean isPublic = true;
-        String superClass = "java.lang.Object";
+        String superClass = "java/lang/Object";
         HashSet<String> interfaces = new HashSet<>();
         do {
             switch (currentToken.kind) {
-                case KEY_PRIVATE -> isPublic = false;
+                case KEY_PRIVATE -> result.isPublic = false;
                 case KEY_PROTECTED -> {
                     invalidToken("Class can't have protected access level", currentToken);
                     return;
                 }
-                case KEY_ABSTRACT -> isAbstract = true;
-                case KEY_STATIC ->  isStatic = true;
-                case KEY_DATA -> isData = true;
+                case KEY_ABSTRACT -> result.isAbstract = true;
+                case KEY_STATIC ->  result.isStatic = true;
+                case KEY_DATA -> result.isData = true;
             }
         } while(!nextToken().isClassDeclarationStart());
         nextToken();
@@ -60,20 +63,31 @@ public class Parser extends CompilationStage<LinkedList<Node>> {
             invalidToken("Class name can't contain special characters and can't start with numbers", currentToken);
             return;
         }
-        tree.add(new AstImpl.ClassDeclaration(isPublic, isAbstract, isStatic, isData, superClass, interfaces));
+        if(!currentToken.literal.equals(initialFileName.replace(".koper", ""))) {
+            invalidToken("Class name have to equal file name and .koper extension", currentToken);
+            return;
+        }
+        if(!result.name.equals("")) {
+            result.name += "/";
+        }
+        result.name += currentToken.literal;
+        result.superClass = superClass;
+        result.interfaces = interfaces;
     }
 
     // this method returns initial class writer with all needed data
     private void parseHead() {
         Token firstToken = nextToken();
+        String className = "";
         if(firstToken.is(TokenKind.KEY_PACKAGE)) {
             nextToken();
             if(!currentToken.is(TokenKind.NAME)) {
                 unexpectedToken("package name", currentToken);
                 return;
             }
-            tree.add(new AstImpl.PackageStatement(currentToken.literal));
+            className = currentToken.literal.replace("\\.", "/");
         }
+        result.name = className;
         while(true) {
             Token next = nextToken();
             if(next.is(TokenKind.KEY_IMPORT)) {

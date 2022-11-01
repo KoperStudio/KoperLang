@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class Main {
-    private static final String testPath = "./example-code.koper";
+    private static final String testPath = "./TestClass.koper";
     public static final boolean DEBUG = false;
     public static void main(String[] args) throws IOException {
         new KoperCompiler(new File(testPath)).compile();
