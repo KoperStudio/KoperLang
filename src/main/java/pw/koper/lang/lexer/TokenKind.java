@@ -93,7 +93,17 @@ public enum TokenKind {
     KEY_SYNC("synchronous"),
     KEY_RUN("run"),
     KEY_AWAIT("await"),
-    KEY_RUNASYNC("runasync");
+    KEY_RUNASYNC("runasync"),
+
+    // primitive types
+    TYPE_BYTE("byte"),
+    TYPE_BOOLEAN("boolean"),
+    TYPE_SHORT("short"),
+    TYPE_CHAR("char"),
+    TYPE_INT("int"),
+    TYPE_LONG("long"),
+    TYPE_FLOAT("float"),
+    TYPE_DOUBLE("double");
     public final int length;
     public final String literal;
     TokenKind(String literal) {

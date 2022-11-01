@@ -1,5 +1,12 @@
 package pw.koper.lang.lexer;
 
+import pw.koper.lang.common.CodeError;
+import pw.koper.lang.common.KoperCompiler;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+
 public class Token {
     public TokenKind kind;
     public String literal;
@@ -24,6 +31,23 @@ public class Token {
         this.column = column;
         this.start = start;
         this.end = start + len;
+    }
+
+    public boolean isClassDeclarationStart() {
+        return switch (kind) {
+            case KEY_PUBLIC, KEY_STATIC, KEY_CLASS, KEY_ABSTRACT, KEY_DATA, KEY_PRIVATE -> true;
+            default -> false;
+        };
+    }
+
+    private static final Pattern stringPattern = Pattern.compile("^[A-Za-z][A-Za-z-0-9]*$");
+
+    public boolean isStrict() {
+        return stringPattern.matcher(literal).matches();
+    }
+
+    public boolean is(TokenKind kind) {
+        return this.kind == kind;
     }
 
     public int length() {

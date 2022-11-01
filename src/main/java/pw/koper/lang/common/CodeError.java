@@ -1,5 +1,7 @@
 package pw.koper.lang.common;
 
+import pw.koper.lang.lexer.Token;
+
 public class CodeError {
     private final CompilationStage compilationStage;
     public int start, end, lineNumber;
@@ -19,6 +21,11 @@ public class CodeError {
         this.label = error;
         this.compilationStage = stage;
     }
+
+    public CodeError(KoperCompiler compiler, String error, Token on) {
+        this(compiler.getStage(), error, StringUtil.getEntireLine(compiler.getInput(), on.lineNumber), on.start, on.end);
+    }
+
 
     public String render() {
         return "Error: " +

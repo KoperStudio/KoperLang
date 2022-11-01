@@ -15,13 +15,13 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
     private static final char[] skip = {
       '\r', '\n', '\t', 8, 9, 11, 12, 32, ' ', '\0'
     };
-    private final HashSet<CodeError> errors = new HashSet<>(1);
 
     private final String input;
 
     public Lexer(KoperCompiler compiler, String code) {
         this.fileName = compiler.getCompilingFile().getName();
         this.input = code.replace(";", "\n");
+        compiler.setInput(input);
     }
 
 //    public String getRawInput() {

@@ -1,5 +1,7 @@
 package pw.koper.lang.common;
 
+import lombok.Getter;
+import lombok.Setter;
 import pw.koper.lang.gen.BytecodeGenerator;
 import pw.koper.lang.lexer.Lexer;
 import pw.koper.lang.lexer.Token;
@@ -12,18 +14,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 public class KoperCompiler {
     private final Lexer lexer;
     private final File file;
-    private LinkedList<Token> tokens;
-    private LinkedList<Node> ast = new LinkedList<>();
+    @Getter private LinkedList<Token> tokens;
+    @Getter private LinkedList<Node> ast;
+    @Getter private CompilationStage<?> stage;
+
+    @Getter @Setter private String input;
 
     public KoperCompiler(File file) throws IOException {
         this.file = file;
         byte[] read = Files.readAllBytes(file.toPath());
         this.lexer = new Lexer(this, new String(read, StandardCharsets.UTF_8));
+        this.stage = lexer;
     }
     public void compile() {
         try {
@@ -39,6 +47,7 @@ public class KoperCompiler {
         }
 
         Parser parser = new Parser(this);
+        this.stage = parser;
         try {
             ast = parser.proceed();
         } catch (CompilationException e) {
@@ -47,11 +56,16 @@ public class KoperCompiler {
             }
         }
 
+        for(Node astNode : ast) {
+            System.out.println(astNode.asString());
+        }
+
         String targetFile = file.getName().replace(".koper", ".class");
         BytecodeGenerator generator = new BytecodeGenerator(this);
+        this.stage = generator;
         try {
             byte[] resultedFile = generator.proceed();
-            if(resultedFile.equals(BytecodeGenerator.EMPTY)) {
+            if(Arrays.equals(resultedFile, BytecodeGenerator.EMPTY)) {
                 System.out.println("Empty output.");
                 return;
             }
@@ -63,10 +77,6 @@ public class KoperCompiler {
         } catch (IOException e) {
             System.err.println("Failed to write result to file " + targetFile);
         }
-    }
-
-    public LinkedList<Token> getTokens() {
-        return tokens;
     }
 
     public File getCompilingFile() {
