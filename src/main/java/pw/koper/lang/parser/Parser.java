@@ -4,6 +4,7 @@ import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
+import pw.koper.lang.common.internal.AccessModifier;
 import pw.koper.lang.common.internal.ClassType;
 import pw.koper.lang.common.internal.KoperClass;
 import pw.koper.lang.lexer.Token;
@@ -39,14 +40,48 @@ public class Parser extends CompilationStage<KoperClass> {
 
     @Override
     public KoperClass proceed() throws CompilationException {
-
         parseHead();
         parseClassDeclaration();
+        parseClassBody();
         if(errors.size() != 0) {
             throw new CompilationException(errors);
         }
         return result;
     }
+
+    private void parseClassBody() {
+        if(!nextToken().is(LEFT_CURLY_BRACE)) {
+            missingToken(LEFT_CURLY_BRACE);
+            return;
+        }
+
+        Token declaration = nextToken();
+    }
+
+    private void parsePrototypeDeclaration() {
+        String type;
+        String name;
+        AccessModifier accessModifier = null;
+        boolean isMethod = false;
+        HashSet<TokenKind> metKinds = new HashSet<>();
+        while(true) {
+            Token current = nextToken();
+            if(metKinds.contains(current.kind)) {
+                invalidToken("Already declared that modifier of the method", current);
+                return;
+            }
+            metKinds.add(current.kind);
+            AccessModifier possibleModifier = AccessModifier.fromToken(current);
+            if(accessModifier != null && possibleModifier != AccessModifier.UNKNOWN) {
+                invalidToken("Class visibility is already declared", current);
+                return;
+            }
+            if(possibleModifier != AccessModifier.UNKNOWN) {
+                accessModifier = possibleModifier;
+            }
+        }
+    }
+
 
     private void parseClassDeclaration() {
         // Initial data
@@ -211,6 +246,10 @@ public class Parser extends CompilationStage<KoperClass> {
 
     private void invalidToken(String why, Token where) {
         errors.add(new CodeError(compiler, "Invalid token " + where.kind + ". " + why, where));
+    }
+
+    private void missingToken(TokenKind whatToken) {
+        errors.add(new CodeError(this, "Missing token: " + whatToken.literal + " is missing"));
     }
 
     private void notDeclared(String what, Token where) {

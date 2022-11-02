@@ -1,9 +1,10 @@
 package me.mrfunny;
 
 import test.classs.MineObject
+import com.goodbye.Hell
 
 @Test("GOODBYE")
-class public abstract TestClass extends MineObject implements com.hello.World, com.goodbye.Hell {
+class TestClass extends MineObject implements com.hello.World, Hell {
 
     @Override
     public void onEnable(Arg arg) {
