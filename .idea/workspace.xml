@@ -8,12 +8,14 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TestClass.class" beforeDir="false" afterPath="$PROJECT_DIR$/TestClass.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TestClass.koper" beforeDir="false" afterPath="$PROJECT_DIR$/TestClass.koper" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CompilationStage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CompilationStage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CodeError.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CodeError.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/StringUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/StringUtil.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClass.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Lexer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Token.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/AstImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/AstImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,5 +124,15 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/Library/Java/JavaVirtualMachines/temurin-16.0.2/Contents/Home/lib/src.zip!/java.base/java/util/ListIterator.java</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

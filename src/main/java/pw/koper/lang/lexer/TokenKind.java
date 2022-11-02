@@ -79,6 +79,8 @@ public enum TokenKind {
     KEY_PRIVATE("private"),
     KEY_STATIC("static"),
     KEY_CLASS("class"),
+    KEY_EXTENDS("extends"),
+    KEY_IMPLEMENTS("implements"),
     KEY_VOID("void"),
     KEY_INTERFACE("interface"),
     KEY_ENUM("enum"),

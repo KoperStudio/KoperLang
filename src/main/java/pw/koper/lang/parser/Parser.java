@@ -11,24 +11,23 @@ import pw.koper.lang.lexer.TokenKind;
 import pw.koper.lang.parser.ast.AstImpl;
 import pw.koper.lang.parser.ast.Node;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
+
+import static pw.koper.lang.common.StringUtil.toJvmName;
 import static pw.koper.lang.lexer.TokenKind.*;
 
 public class Parser extends CompilationStage<KoperClass> {
 
     private final KoperCompiler compiler;
     private final LinkedList<Node> tree = new LinkedList<>();
-    private final Iterator<Token> tokenIterator;
+    private final ListIterator<Token> tokenIterator;
     private Token currentToken;
     private final String initialFileName;
     private final KoperClass result;
 
     public Parser(KoperCompiler compiler) {
         this.compiler = compiler;
-        this.tokenIterator = compiler.getTokens().iterator();
+        this.tokenIterator = (ListIterator<Token>) compiler.getTokens().iterator();
         this.initialFileName = compiler.getCompilingFile().getName();
         this.result = new KoperClass(initialFileName);
     }
@@ -69,6 +68,22 @@ public class Parser extends CompilationStage<KoperClass> {
                 case KEY_ABSTRACT -> result.isAbstract = true;
                 case KEY_STATIC ->  result.isStatic = true;
                 case KEY_DATA -> result.isData = true;
+                case KEY_EXTENDS -> {
+                    nextToken();
+                    if(!currentToken.is(NAME)) {
+                        unexpectedToken("Expected extending class name, got " + currentToken.literal, currentToken);
+                        return;
+                    }
+                    superClass = result.getClassByName(currentToken.literal);
+                    continue;
+                }
+                case KEY_IMPLEMENTS -> {
+                    System.out.println(currentToken.literal);
+                    if(!parseImplementsExpression(interfaces)) {
+                        return;
+                    }
+                    continue;
+                }
             }
 
             // if token isn't name, then it's modifier, and we need to remember it
@@ -93,25 +108,37 @@ public class Parser extends CompilationStage<KoperClass> {
                     return;
                 }
             }
-        } while (!nextToken().isOrEof(LEFT_CURLY_BRACE, compiler)); // loop until '{'
-
+        } while (!nextToken().isOrEof(LEFT_CURLY_BRACE, compiler, false)); // loop until '{' or EOF
+        if(metNames.size() > 1) {
+            Token theFirst = metNames.get(1);
+            int start = theFirst.start;
+            int end = metNames.get(metNames.size() - 1).end;
+            errors.add(new CodeError(this, "Invalid name declaration", compiler.getLineByNumber(theFirst.lineNumber), end, start));
+            return;
+        }
         // Nobody declared the class type
         if(type == null) {
             notDeclared("Class type", currentToken);
             return;
         }
 
-        // Enums and interfaces can't be abstract
-        if(type != ClassType.CLASS && result.isAbstract) {
-            invalidToken("Enums and interfaces can't be abstract!", currentToken);
-        }
-
-        // filling all the data to the result class
-        result.classType = type;
+        // Filling first part of class information like its type and name
         Token className = metNames.get(0);
         if(!className.isStrict()) {
             invalidToken("Class name can't contain special characters and can't start with numbers", currentToken);
             return;
+        }
+
+        // Package got declared and saved to name, so we add separator
+        if(!result.name.equals("")) {
+            result.name += "/";
+        }
+        result.name += className.literal;
+        result.classType = type;
+
+        // Enums and interfaces can't be abstract
+        if(type != ClassType.CLASS && result.isAbstract) {
+            invalidDeclaration("Enums and interfaces can't be abstract!", result.name);
         }
 
         // If class name is illegal
@@ -120,15 +147,30 @@ public class Parser extends CompilationStage<KoperClass> {
             return;
         }
 
-        // Package got declared and saved to name, so we add separator
-        if(!result.name.equals("")) {
-            result.name += "/";
-        }
-
         // filling other data
-        result.name += className.literal;
         result.superClass = superClass;
         result.interfaces = interfaces;
+    }
+
+    private boolean parseImplementsExpression(Collection<String> interfaces) {
+        while(true) {
+            Token name = nextToken(); // interface itself
+            Token comma = nextToken(); // ,
+            if(!name.is(NAME)) {
+                unexpectedToken("Name of implementing interface", name);
+                return false;
+            }
+            interfaces.add(result.getClassByName(name.literal)); // just adding it, if we will have further errors, this wouldn't have impact
+            if(comma.is(LEFT_CURLY_BRACE)) {
+                tokenIterator.previous();
+                break;
+            } else if(comma.is(NAME)) {
+                unexpectedToken("Splitter (comma)", comma);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Fills data as imports and package
@@ -141,7 +183,7 @@ public class Parser extends CompilationStage<KoperClass> {
                 unexpectedToken("package name", currentToken);
                 return;
             }
-            className = currentToken.literal.replace("\\.", "/");
+            className = toJvmName(currentToken.literal);
         }
         result.name = className;
         while(true) {
@@ -152,7 +194,9 @@ public class Parser extends CompilationStage<KoperClass> {
                     unexpectedToken("importing class name", currentToken);
                     return;
                 }
-                result.imports.add(currentToken.literal);
+                String fullImportName = toJvmName(currentToken.literal);
+                String[] data = fullImportName.split("/");
+                result.imports.put(data[data.length - 1], fullImportName);
             }
             if(next.isClassDeclarationStart()) {
                 return;
@@ -171,5 +215,9 @@ public class Parser extends CompilationStage<KoperClass> {
 
     private void notDeclared(String what, Token where) {
         errors.add(new CodeError(compiler, what + " is not declared", where));
+    }
+
+    private void invalidDeclaration(String why, String className) {
+        errors.add(new CodeError(this, "Invalid declaration at " + className + ": " + why));
     }
 }

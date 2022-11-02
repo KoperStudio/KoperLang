@@ -228,6 +228,13 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
         } else if(!result.equals(TokenKind.UNKNOWN)) {
             return new Token(result, result.literal, line, column, start);
         } else {
+            for(String literalPart : literal.split("\\.")) {
+                TokenKind runResult = TokenKind.getByLiteral(literalPart);
+                if(!runResult.equals(TokenKind.UNKNOWN)) {
+                    error("Name can't contain keyword parts", position, start);
+                    return null;
+                }
+            }
             return new Token(TokenKind.NAME, literal, line, column, start);
         }
     }

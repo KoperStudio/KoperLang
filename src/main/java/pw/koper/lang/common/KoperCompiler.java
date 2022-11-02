@@ -82,6 +82,10 @@ public class KoperCompiler {
         }
     }
 
+    public String getLineByNumber(int line) {
+        return StringUtil.getEntireLine(input, line);
+    }
+
     public File getCompilingFile() {
         return file;
     }

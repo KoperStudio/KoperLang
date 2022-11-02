@@ -1,9 +1,9 @@
 package me.mrfunny;
 
-import com.java;
+import test.classs.MineObject
 
 @Test("GOODBYE")
-public enum TestClass {
+class public abstract TestClass extends MineObject implements com.hello.World, com.goodbye.Hell {
 
     @Override
     public void onEnable(Arg arg) {

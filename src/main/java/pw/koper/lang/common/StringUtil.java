@@ -7,6 +7,10 @@ public class StringUtil {
     }
 
     public static String classNameToDescriptor(String className) {
-        return "L" + className.replaceAll("\\.", "/") + ";";
+        return "L" + toJvmName(className) + ";";
+    }
+
+    public static String toJvmName(String className) {
+        return className.replaceAll("\\.", "/").intern();
     }
 }

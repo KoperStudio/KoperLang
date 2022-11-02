@@ -62,9 +62,11 @@ public class Token {
         return this.kind == kind || kind.is(TokenKind.EOF);
     }
 
-    public boolean isOrEof(TokenKind kind, KoperCompiler compiler) {
+    public boolean isOrEof(TokenKind kind, KoperCompiler compiler, boolean error) {
         if(this.kind == TokenKind.EOF) {
-            compiler.getStage().errors.add(new CodeError(compiler, "", this));
+            if(error) {
+                compiler.getStage().errors.add(new CodeError(compiler, "Unexpected end of file", this));
+            }
             return true;
         }
         return this.kind == kind;

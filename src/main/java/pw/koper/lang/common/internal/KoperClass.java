@@ -8,10 +8,12 @@ import org.objectweb.asm.Opcodes;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.parser.ast.Node;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.*;
+import static pw.koper.lang.common.StringUtil.toJvmName;
 
 public class KoperClass {
     private final String sourceFileName;
@@ -24,7 +26,9 @@ public class KoperClass {
     public ClassType classType;
     public Set<String> interfaces;
     public Set<KoperMethod> methods = new HashSet<>();
-    public Set<String> imports = new HashSet<>();
+
+    // Map from short name to full name
+    public HashMap<String, String> imports = new HashMap<>();
     public KoperClass(String sourceFileName) {
         this.sourceFileName = sourceFileName;
     }
@@ -36,7 +40,11 @@ public class KoperClass {
             case INTERFACE -> access |= ACC_INTERFACE;
             case ENUM -> access |= ACC_ENUM;
         }
-        classWriter.visit(Opcodes.V11, access, name, null, superClass, new String[0]);
+        if(isAbstract) {
+            access |= ACC_ABSTRACT;
+        }
+
+        classWriter.visit(Opcodes.V11, access, name, null, superClass, interfaces.toArray(new String[0]));
         classWriter.visitEnd();
         return classWriter.toByteArray();
     }
@@ -44,6 +52,12 @@ public class KoperClass {
     // Returns true if class isn't enum and interface
     public boolean isFullClass() {
         return classType == ClassType.CLASS;
+    }
+
+    public String getClassByName(String name) {
+        if(name.contains(".")) return toJvmName(name);
+
+        return imports.get(name);
     }
     
 }

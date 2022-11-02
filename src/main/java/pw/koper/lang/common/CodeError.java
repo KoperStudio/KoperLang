@@ -23,9 +23,8 @@ public class CodeError {
     }
 
     public CodeError(KoperCompiler compiler, String error, Token on) {
-        this(compiler.getStage(), error, StringUtil.getEntireLine(compiler.getInput(), on.lineNumber), on.start, on.end);
+        this(compiler.getStage(), error, compiler.getLineByNumber(on.lineNumber), on.start, on.end);
     }
-
 
     public String render() {
         return "Error: " +
