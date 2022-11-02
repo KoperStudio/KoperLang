@@ -5,12 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="502ec4a8-793b-41a0-88fc-d251cb823bf5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/ClassType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestClass.class" beforeDir="false" afterPath="$PROJECT_DIR$/TestClass.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestClass.koper" beforeDir="false" afterPath="$PROJECT_DIR$/TestClass.koper" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CompilationStage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/CompilationStage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClass.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/Token.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/AstImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/AstImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

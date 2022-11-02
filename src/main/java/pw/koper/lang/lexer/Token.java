@@ -1,9 +1,11 @@
 package pw.koper.lang.lexer;
 
 import pw.koper.lang.common.CodeError;
+import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
 import pw.koper.lang.common.internal.ClassType;
 
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -57,6 +59,14 @@ public class Token {
     }
 
     public boolean is(TokenKind kind) {
+        return this.kind == kind || kind.is(TokenKind.EOF);
+    }
+
+    public boolean isOrEof(TokenKind kind, KoperCompiler compiler) {
+        if(this.kind == TokenKind.EOF) {
+            compiler.getStage().errors.add(new CodeError(compiler, "", this));
+            return true;
+        }
         return this.kind == kind;
     }
 

@@ -63,6 +63,7 @@ public class KoperCompiler {
 //        }
         if(result == null) {
             System.err.println("Failed to compile AST");
+            return;
         }
         String targetFile = file.getName().replace(".koper", ".class");
         try {

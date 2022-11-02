@@ -11,6 +11,7 @@ import pw.koper.lang.lexer.TokenKind;
 import pw.koper.lang.parser.ast.AstImpl;
 import pw.koper.lang.parser.ast.Node;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,7 +23,9 @@ public class Parser extends CompilationStage<KoperClass> {
     private final LinkedList<Node> tree = new LinkedList<>();
     private final Iterator<Token> tokenIterator;
     private Token currentToken;
-    private String initialFileName;
+    private final String initialFileName;
+    private final KoperClass result;
+
     public Parser(KoperCompiler compiler) {
         this.compiler = compiler;
         this.tokenIterator = compiler.getTokens().iterator();
@@ -30,7 +33,10 @@ public class Parser extends CompilationStage<KoperClass> {
         this.result = new KoperClass(initialFileName);
     }
 
-    private final KoperClass result;
+    public Token nextToken() {
+        currentToken = tokenIterator.next();
+        return currentToken;
+    }
 
     @Override
     public KoperClass proceed() throws CompilationException {
@@ -44,11 +50,16 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     private void parseClassDeclaration() {
-        // do loop because previous method already goes for next token for us
+        // Initial data
         String superClass = "java/lang/Object";
         HashSet<String> interfaces = new HashSet<>();
         ClassType type = null;
+        HashSet<TokenKind> metDeclarators = new HashSet<>();
+        ArrayList<Token> metNames = new ArrayList<>();
+
+        // do loop because previous method already goes for next token for us
         do {
+            // checking for the modifiers
             switch (currentToken.kind) {
                 case KEY_PRIVATE -> result.isPublic = false;
                 case KEY_PROTECTED -> {
@@ -59,6 +70,20 @@ public class Parser extends CompilationStage<KoperClass> {
                 case KEY_STATIC ->  result.isStatic = true;
                 case KEY_DATA -> result.isData = true;
             }
+
+            // if token isn't name, then it's modifier, and we need to remember it
+            // if we already have the same modifier, throw error
+            if(!currentToken.is(NAME)) {
+                if(metDeclarators.contains(currentToken.kind)) {
+                    invalidToken("Modifier already present", currentToken);
+                    return;
+                }
+                metDeclarators.add(currentToken.kind);
+            } else {
+                metNames.add(currentToken);
+            }
+
+            // maybe current token is possible class type definition
             ClassType possible = currentToken.toClassType();
             if(!possible.equals(ClassType.INVALID)) {
                 if(type == null) {
@@ -68,26 +93,45 @@ public class Parser extends CompilationStage<KoperClass> {
                     return;
                 }
             }
+        } while (!nextToken().isOrEof(LEFT_CURLY_BRACE, compiler)); // loop until '{'
 
-        } while(!nextToken().isClassDeclarationStart());
-        nextToken();
-        if(!currentToken.isStrict()) {
+        // Nobody declared the class type
+        if(type == null) {
+            notDeclared("Class type", currentToken);
+            return;
+        }
+
+        // Enums and interfaces can't be abstract
+        if(type != ClassType.CLASS && result.isAbstract) {
+            invalidToken("Enums and interfaces can't be abstract!", currentToken);
+        }
+
+        // filling all the data to the result class
+        result.classType = type;
+        Token className = metNames.get(0);
+        if(!className.isStrict()) {
             invalidToken("Class name can't contain special characters and can't start with numbers", currentToken);
             return;
         }
-        if(!currentToken.literal.equals(initialFileName.replace(".koper", ""))) {
+
+        // If class name is illegal
+        if(!className.literal.equals(initialFileName.replace(".koper", ""))) {
             invalidToken("Class name have to equal file name and .koper extension", currentToken);
             return;
         }
+
+        // Package got declared and saved to name, so we add separator
         if(!result.name.equals("")) {
             result.name += "/";
         }
-        result.name += currentToken.literal;
+
+        // filling other data
+        result.name += className.literal;
         result.superClass = superClass;
         result.interfaces = interfaces;
     }
 
-    // this method returns initial class writer with all needed data
+    // Fills data as imports and package
     private void parseHead() {
         Token firstToken = nextToken();
         String className = "";
@@ -108,7 +152,7 @@ public class Parser extends CompilationStage<KoperClass> {
                     unexpectedToken("importing class name", currentToken);
                     return;
                 }
-                tree.add(new AstImpl.ImportStatement(currentToken.literal));
+                result.imports.add(currentToken.literal);
             }
             if(next.isClassDeclarationStart()) {
                 return;
@@ -116,6 +160,7 @@ public class Parser extends CompilationStage<KoperClass> {
         }
     }
 
+    // error methods
     private void unexpectedToken(String expected, Token where) {
         errors.add(new CodeError(compiler, "Unexpected token. Expected " + expected + ", got " + where.kind, where));
     }
@@ -124,8 +169,7 @@ public class Parser extends CompilationStage<KoperClass> {
         errors.add(new CodeError(compiler, "Invalid token " + where.kind + ". " + why, where));
     }
 
-    public Token nextToken() {
-        currentToken = tokenIterator.next();
-        return currentToken;
+    private void notDeclared(String what, Token where) {
+        errors.add(new CodeError(compiler, what + " is not declared", where));
     }
 }
