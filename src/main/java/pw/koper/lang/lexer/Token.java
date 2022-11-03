@@ -4,6 +4,7 @@ import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
 import pw.koper.lang.common.internal.ClassType;
+import pw.koper.lang.common.internal.KoperClass;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -75,4 +76,15 @@ public class Token {
     public int length() {
         return literal.length();
     }
+
+    public boolean isTypeDeclaration() {
+        return kind.name().startsWith("TYPE") || kind == TokenKind.NAME;
+    }
+
+//    public String toType(KoperClass koperClass) {
+//        if(is(TokenKind.NAME)) {
+//            return koperClass.getClassByName(literal);
+//        }
+//        switch (kind)
+//    }
 }

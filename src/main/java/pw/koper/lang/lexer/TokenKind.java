@@ -1,6 +1,7 @@
 package pw.koper.lang.lexer;
 
-import java.util.regex.Pattern;
+import pw.koper.lang.common.internal.PrimitiveTypes;
+import pw.koper.lang.common.internal.Type;
 
 public enum TokenKind {
     UNKNOWN("UNKNOWN"),
@@ -77,11 +78,14 @@ public enum TokenKind {
     KEY_PUBLIC("public"),
     KEY_PROTECTED("protected"),
     KEY_PRIVATE("private"),
+    KEY_FINAL("final"),
     KEY_STATIC("static"),
+    KEY_GETTING("getting"),
+    KEY_SETTING("setting"),
     KEY_CLASS("class"),
     KEY_EXTENDS("extends"),
     KEY_IMPLEMENTS("implements"),
-    KEY_VOID("void"),
+    TYPE_VOID("void"),
     KEY_INTERFACE("interface"),
     KEY_ENUM("enum"),
     KEY_ABSTRACT("abstract"),

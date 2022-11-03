@@ -4,9 +4,7 @@ import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.CompilationStage;
 import pw.koper.lang.common.KoperCompiler;
-import pw.koper.lang.common.internal.AccessModifier;
-import pw.koper.lang.common.internal.ClassType;
-import pw.koper.lang.common.internal.KoperClass;
+import pw.koper.lang.common.internal.*;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.lexer.TokenKind;
 import pw.koper.lang.parser.ast.AstImpl;
@@ -59,11 +57,11 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     private void parsePrototypeDeclaration() {
-        String type;
-        String name;
         AccessModifier accessModifier = null;
-        boolean isMethod = false;
         HashSet<TokenKind> metKinds = new HashSet<>();
+        boolean expectMethod = false;
+        boolean expectField = false;
+        Modifiers modifiers = Modifiers.builder();
         while(true) {
             Token current = nextToken();
             if(metKinds.contains(current.kind)) {
@@ -79,9 +77,67 @@ public class Parser extends CompilationStage<KoperClass> {
             if(possibleModifier != AccessModifier.UNKNOWN) {
                 accessModifier = possibleModifier;
             }
+            switch (current.kind) {
+                case KEY_GETTING -> {
+                    modifiers.getting();
+                    expectField = true;
+                }
+                case KEY_SETTING -> {
+                    modifiers.setting();
+                    expectField = true;
+                }
+                case KEY_ABSTRACT -> {
+                    modifiers.abstractKey();
+                    expectMethod = true;
+                }
+                case TYPE_VOID -> {
+                    expectMethod = true;
+                }
+            }
+            if(current.isTypeDeclaration()) {
+                break;
+            }
         }
+
+        if(accessModifier == null) {
+            accessModifier = AccessModifier.PUBLIC;
+        }
+        modifiers.access(accessModifier);
+        parseTypeAndNameDeclaration(modifiers, expectField, expectMethod);
     }
 
+    private void parseTypeAndNameDeclaration(Modifiers modifiers, boolean expectField, boolean expectMethod) {
+        Type type = tokenToType(currentToken);
+        if(currentToken.literal.equals(result.name)) {
+            // this is a constructor of the class.
+            // <init> method
+            type = PrimitiveTypes.VOID;
+        }
+
+        if(type == null) {
+            unexpectedToken("Invalid type: ", currentToken);
+            return;
+        }
+        if(expectMethod && expectField) {
+            invalidToken("Fields can't be absract and have void type, methods can't have 'getting' or 'setting' attribute", currentToken);
+        }
+
+    }
+
+    private Type tokenToType(Token token) {
+        return switch (token.kind) {
+            case TYPE_VOID -> PrimitiveTypes.VOID;
+            case TYPE_BYTE -> PrimitiveTypes.BYTE;
+            case TYPE_SHORT -> PrimitiveTypes.SHORT;
+            case TYPE_CHAR -> PrimitiveTypes.CHAR;
+            case TYPE_INT -> PrimitiveTypes.INT;
+            case TYPE_LONG -> PrimitiveTypes.LONG;
+            case TYPE_FLOAT -> PrimitiveTypes.FLOAT;
+            case TYPE_DOUBLE -> PrimitiveTypes.DOUBLE;
+            case NAME -> new KoperObject(token.literal.replace(".\\", "/"));
+            default -> null;
+        };
+    }
 
     private void parseClassDeclaration() {
         // Initial data

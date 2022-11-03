@@ -1,7 +1,13 @@
 package pw.koper.lang.common.internal;
 
-// this class is used to gather da
-public abstract class KoperObject {
-    protected String type;
-    protected String name;
+public class KoperObject extends Type {
+    private final String name;
+    public KoperObject(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toDescriptor() {
+        return "L" + this.name + ";";
+    }
 }
