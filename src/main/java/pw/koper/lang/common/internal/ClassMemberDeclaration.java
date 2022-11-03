@@ -1,15 +1,18 @@
 package pw.koper.lang.common.internal;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class Modifiers {
-    private AccessModifier accessModifier;
+public class ClassMemberDeclaration {
+    @Setter private AccessModifier accessModifier;
     private boolean isAbstract;
     private boolean setting;
     private boolean getting;
+    @Setter private Type type;
+    @Setter private String name;
 
-    private Modifiers() {}
+    private ClassMemberDeclaration() {}
 
     public void setting() {
         this.setting = true;
@@ -23,11 +26,7 @@ public class Modifiers {
         this.isAbstract = true;
     }
 
-    public void access(AccessModifier modifier) {
-        this.accessModifier = modifier;
-    }
-
-    public static Modifiers builder() {
-        return new Modifiers();
+    public static ClassMemberDeclaration builder() {
+        return new ClassMemberDeclaration();
     }
 }

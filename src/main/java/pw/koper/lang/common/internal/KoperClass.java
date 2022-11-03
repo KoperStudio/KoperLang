@@ -26,6 +26,7 @@ public class KoperClass {
     public ClassType classType;
     public Set<String> interfaces;
     public Set<KoperMethod> methods = new HashSet<>();
+    public Set<KoperField> fields = new HashSet<>();
 
     // Map from short name to full name
     public HashMap<String, String> imports = new HashMap<>();
@@ -45,6 +46,9 @@ public class KoperClass {
         }
 
         classWriter.visit(Opcodes.V11, access, name, null, superClass, interfaces.toArray(new String[0]));
+        for(KoperField field : fields) {
+            classWriter.visitField(field.getAccessModifier().toOpcode(), field.getName(), field.getType().toDescriptor(), field.getType().toSignature(), null);
+        }
         classWriter.visitEnd();
         return classWriter.toByteArray();
     }

@@ -7,7 +7,6 @@ import pw.koper.lang.common.KoperCompiler;
 import pw.koper.lang.common.internal.*;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.lexer.TokenKind;
-import pw.koper.lang.parser.ast.AstImpl;
 import pw.koper.lang.parser.ast.Node;
 
 import java.util.*;
@@ -48,20 +47,20 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     private void parseClassBody() {
-        if(!nextToken().is(LEFT_CURLY_BRACE)) {
+        if(!currentToken.is(LEFT_CURLY_BRACE)) {
             missingToken(LEFT_CURLY_BRACE);
             return;
         }
 
-        Token declaration = nextToken();
+        parseStartMemberDeclaration();
     }
 
-    private void parsePrototypeDeclaration() {
+    private void parseStartMemberDeclaration() {
         AccessModifier accessModifier = null;
         HashSet<TokenKind> metKinds = new HashSet<>();
         boolean expectMethod = false;
         boolean expectField = false;
-        Modifiers modifiers = Modifiers.builder();
+        ClassMemberDeclaration classMemberDeclaration = ClassMemberDeclaration.builder();
         while(true) {
             Token current = nextToken();
             if(metKinds.contains(current.kind)) {
@@ -79,15 +78,15 @@ public class Parser extends CompilationStage<KoperClass> {
             }
             switch (current.kind) {
                 case KEY_GETTING -> {
-                    modifiers.getting();
+                    classMemberDeclaration.getting();
                     expectField = true;
                 }
                 case KEY_SETTING -> {
-                    modifiers.setting();
+                    classMemberDeclaration.setting();
                     expectField = true;
                 }
                 case KEY_ABSTRACT -> {
-                    modifiers.abstractKey();
+                    classMemberDeclaration.abstractKey();
                     expectMethod = true;
                 }
                 case TYPE_VOID -> {
@@ -102,26 +101,77 @@ public class Parser extends CompilationStage<KoperClass> {
         if(accessModifier == null) {
             accessModifier = AccessModifier.PUBLIC;
         }
-        modifiers.access(accessModifier);
-        parseTypeAndNameDeclaration(modifiers, expectField, expectMethod);
+        classMemberDeclaration.setAccessModifier(accessModifier);
+        parseTypeAndNameDeclaration(classMemberDeclaration, expectField, expectMethod);
     }
 
-    private void parseTypeAndNameDeclaration(Modifiers modifiers, boolean expectField, boolean expectMethod) {
-        Type type = tokenToType(currentToken);
+    private void parseTypeAndNameDeclaration(ClassMemberDeclaration classMemberDeclaration, boolean expectField, boolean expectMethod) {
+        Type type;
         if(currentToken.literal.equals(result.name)) {
             // this is a constructor of the class.
             // <init> method
             type = PrimitiveTypes.VOID;
+            classMemberDeclaration.setType(type);
+            parseMethodBody(classMemberDeclaration);
+            return;
         }
+
+        type = tokenToType(currentToken);
 
         if(type == null) {
             unexpectedToken("Invalid type: ", currentToken);
             return;
         }
         if(expectMethod && expectField) {
-            invalidToken("Fields can't be absract and have void type, methods can't have 'getting' or 'setting' attribute", currentToken);
+            invalidToken("Fields can't be abstract and have void type, methods can't have 'getting' or 'setting' attribute", currentToken);
+        }
+        classMemberDeclaration.setType(type);
+        nextToken(); // get to the name
+        if(!currentToken.isStrict()) {
+            invalidToken("Name contains special characters", currentToken);
+            return;
+        }
+        classMemberDeclaration.setName(currentToken.literal);
+        Token end = nextToken();
+        if(end.is(LEFT_PAREN)) { // this is 100% method
+            parseMethodBody(classMemberDeclaration);
+        } else { // this is field
+            KoperField field = new KoperField(classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier());
+            if(end.is(ASSIGN)) {
+                // parse expression, we can't really do something
+                invalidToken("Field value assignments aren't implemented yet", end);
+            }
+            result.fields.add(field);
+        }
+    }
+
+    private void parseMethodBody(ClassMemberDeclaration member) {
+        KoperMethod result = new KoperMethod();
+        parseMethodPrototype(member);
+
+        this.result.methods.add(result);
+    }
+
+    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration) {
+        if(!currentToken.is(LEFT_PAREN)) {
+            unexpectedToken("'(' (paren)", currentToken);
+            return;
         }
 
+        // parsing the args expression
+        while(true) {
+            Token typeToken = nextToken();
+            Token name = nextToken();
+            Type type = tokenToType(typeToken);
+            if(type == null) {
+                unexpectedToken("Type declaration (name or keyword of primitive type)", typeToken);
+                return;
+            }
+            if(!name.isStrict()) {
+                invalidToken("Argument name can't contain special characters", name);
+                return;
+            }
+        }
     }
 
     private Type tokenToType(Token token) {
@@ -134,7 +184,7 @@ public class Parser extends CompilationStage<KoperClass> {
             case TYPE_LONG -> PrimitiveTypes.LONG;
             case TYPE_FLOAT -> PrimitiveTypes.FLOAT;
             case TYPE_DOUBLE -> PrimitiveTypes.DOUBLE;
-            case NAME -> new KoperObject(token.literal.replace(".\\", "/"));
+            case NAME -> new KoperObject(result.getClassByName(token.literal));
             default -> null;
         };
     }
@@ -169,7 +219,6 @@ public class Parser extends CompilationStage<KoperClass> {
                     continue;
                 }
                 case KEY_IMPLEMENTS -> {
-                    System.out.println(currentToken.literal);
                     if(!parseImplementsExpression(interfaces)) {
                         return;
                     }
@@ -230,6 +279,7 @@ public class Parser extends CompilationStage<KoperClass> {
         // Enums and interfaces can't be abstract
         if(type != ClassType.CLASS && result.isAbstract) {
             invalidDeclaration("Enums and interfaces can't be abstract!", result.name);
+            return; // I hate this return, caused too much bugs
         }
 
         // If class name is illegal

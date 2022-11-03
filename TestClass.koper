@@ -5,12 +5,5 @@ import com.goodbye.Hell
 
 @Test("GOODBYE")
 class TestClass extends MineObject implements com.hello.World, Hell {
-
-    @Override
-    public void onEnable(Arg arg) {
-    }
-
-    public static void main(String[] args) {
-        mrfunny().hello.world(123.123, System.out, getMe(), i.like(), "other\"")
-    }
+    private final Hell field
 }

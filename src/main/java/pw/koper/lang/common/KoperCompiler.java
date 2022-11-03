@@ -43,9 +43,9 @@ public class KoperCompiler {
             }
             return;
         }
-        for(Token token : tokens) {
-            System.out.println(token.kind + ": " + token.literal);
-        }
+//        for(Token token : tokens) {
+//            System.out.println(token.kind + ": " + token.literal);
+//        }
 
         Parser parser = new Parser(this);
         this.stage = parser;

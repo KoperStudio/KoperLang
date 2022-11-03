@@ -3,6 +3,7 @@ package pw.koper.lang.common.internal;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.objectweb.asm.ClassWriter;
+import pw.koper.lang.parser.ast.Node;
 
 @RequiredArgsConstructor
 @Getter
@@ -13,7 +14,5 @@ public class KoperField {
     public boolean hasSetter = false;
     public boolean hasGetter = false;
 
-    public void generateBytecode(ClassWriter classWriter) {
-        classWriter.visitField(accessModifier.toOpcode(), name, type.toDescriptor(), type.toSignature(), null);
-    }
+    public Node staticValueDeclaration; // as all nodes accepting methodwriter, we will init static method in the <cinit> method
 }
