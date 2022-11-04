@@ -81,6 +81,9 @@ public class Parser extends CompilationStage<KoperClass> {
                     classMemberDeclaration.getting();
                     expectField = true;
                 }
+                case KEY_STATIC -> {
+                    classMemberDeclaration.setStatic(true);
+                }
                 case KEY_SETTING -> {
                     classMemberDeclaration.setting();
                     expectField = true;
@@ -92,10 +95,16 @@ public class Parser extends CompilationStage<KoperClass> {
                 case TYPE_VOID -> {
                     expectMethod = true;
                 }
+                case KEY_FINAL -> classMemberDeclaration.setFinal(true);
             }
             if(current.isTypeDeclaration()) {
                 break;
             }
+        }
+
+        if(classMemberDeclaration.isFinal() && classMemberDeclaration.isSetting()) {
+            invalidDeclaration("Field can't have setter while being final", classMemberDeclaration.getName());
+            return;
         }
 
         if(accessModifier == null) {
@@ -136,9 +145,13 @@ public class Parser extends CompilationStage<KoperClass> {
         if(end.is(LEFT_PAREN)) { // this is 100% method
             parseMethodBody(classMemberDeclaration);
         } else { // this is field
-            KoperField field = new KoperField(classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier());
+            KoperField field = new KoperField(classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier(), classMemberDeclaration.isStatic());
+            field.hasGetter = classMemberDeclaration.isGetting();
+            field.hasSetter = classMemberDeclaration.isSetting();
             if(end.is(ASSIGN)) {
                 // parse expression, we can't really do something
+                // but we 100% know that class will have static constructor
+                result.willHaveStaticConstructor();
                 invalidToken("Field value assignments aren't implemented yet", end);
             }
             result.fields.add(field);
@@ -146,7 +159,7 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     private void parseMethodBody(ClassMemberDeclaration member) {
-        KoperMethod result = new KoperMethod();
+        KoperMethod result = new KoperMethod(null, null, null, false);
         parseMethodPrototype(member);
 
         this.result.methods.add(result);

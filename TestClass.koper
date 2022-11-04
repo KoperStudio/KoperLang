@@ -5,5 +5,5 @@ import com.goodbye.Hell
 
 @Test("GOODBYE")
 class TestClass extends MineObject implements com.hello.World, Hell {
-    private final Hell field
+    private setting getting Hell field
 }

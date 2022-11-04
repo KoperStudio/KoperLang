@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class Main<T> extends CompilationStage<Boolean> implements Node {
+public class Main extends CompilationStage<Boolean> implements Node {
     private static final String testPath = "./TestClass.koper";
     public static final boolean DEBUG = false;
     public static void main(String[] args) throws IOException {
@@ -19,5 +19,15 @@ public class Main<T> extends CompilationStage<Boolean> implements Node {
     @Override
     public Boolean proceed() throws CompilationException {
         return null;
+    }
+
+    private String hell = ":asdasd";
+
+    public String getHell() {
+        return this.hell;
+    }
+
+    public void setHell(String hello) {
+        this.hell = hello;
     }
 }

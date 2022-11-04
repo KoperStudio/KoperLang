@@ -11,6 +11,8 @@ public class ClassMemberDeclaration {
     private boolean getting;
     @Setter private Type type;
     @Setter private String name;
+    @Setter private boolean isStatic;
+    @Setter private boolean isFinal;
 
     private ClassMemberDeclaration() {}
 
