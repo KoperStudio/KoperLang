@@ -51,7 +51,8 @@ public class KoperClass {
 
         classWriter.visit(Opcodes.V11, access, name, null, superClass, interfaces.toArray(new String[0]));
         for(KoperField field : fields) {
-            classWriter.visitField(field.getAccessModifier().toOpcode(), field.getName(), field.getType().toDescriptor(), field.getType().toSignature(), null);
+
+            classWriter.visitField(field.getOpcodeAccessModifier(), field.getName(), field.getType().toDescriptor(), field.getType().toSignature(), null);
             if(field.isStatic()) {
                 staticFields.put(field.getName(), field.getType().toDescriptor());
             }

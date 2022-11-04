@@ -1,4 +1,4 @@
-package me.mrfunny;
+package me.mrfunny
 
 import test.classs.MineObject
 import com.goodbye.Hell
@@ -6,5 +6,5 @@ import com.goodbye.Hell
 @Test("GOODBYE")
 class TestClass extends MineObject implements com.hello.World, Hell {
     private setting getting Hell field
-    private getting setting net.minecraft.client.Minecraft[] instances
+    private getting final net.minecraft.client.Minecraft instances
 }

@@ -140,39 +140,17 @@ public class Parser extends CompilationStage<KoperClass> {
             invalidToken("Fields can't be abstract and have void type, methods can't have 'getting' or 'setting' attribute", currentToken);
         }
         classMemberDeclaration.setType(type);
-        nextToken(); // get to the name
-        int arrayIterations = 0;
-        if(currentToken.is(LEFT_BRACE)) {
-            // array declaration
-            tokenIterator.previous();
-            while(true) {
-                Token right = nextToken();
-                if(!right.is(LEFT_BRACE)) {
-                    break;
-                }
-
-                Token left = nextToken();
-                if(!left.is(RIGHT_BRACE)) {
-                    invalidToken("Cause ytou're dimp", currentToken);
-                    return;
-                }
-                arrayIterations++;
-            }
-        }
+        nextToken();
         if(!currentToken.isStrict()) {
             invalidToken("Name contains special characters", currentToken);
             return;
         }
-        classMemberDeclaration.setArrayDeclarationIterations(arrayIterations);
         classMemberDeclaration.setName(currentToken.literal);
         Token end = nextToken();
         if(end.is(LEFT_PAREN)) { // this is 100% method
             parseMethodBody(classMemberDeclaration);
         } else { // this is field
-            KoperField field = new KoperField(classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier(), classMemberDeclaration.isStatic());
-            field.hasGetter = classMemberDeclaration.isGetting();
-            field.hasSetter = classMemberDeclaration.isSetting();
-            field.getType().setNestedArraysCount(arrayIterations);
+            KoperField field = new KoperField(classMemberDeclaration);
             if(end.is(ASSIGN)) {
                 // parse expression, we can't really do something
                 // but we 100% know that class will have static constructor
@@ -214,8 +192,8 @@ public class Parser extends CompilationStage<KoperClass> {
         }
     }
 
-    private Type tokenToType(Token token) {
-        return switch (token.kind) {
+    private Type tokenToType(Token token) throws CompilationException{
+        Type type = switch (token.kind) {
             case TYPE_VOID -> PrimitiveTypes.VOID;
             case TYPE_BYTE -> PrimitiveTypes.BYTE;
             case TYPE_SHORT -> PrimitiveTypes.SHORT;
@@ -227,6 +205,29 @@ public class Parser extends CompilationStage<KoperClass> {
             case NAME -> new KoperObject(result.getClassByName(token.literal));
             default -> null;
         };
+        if(type == null) return null;
+        nextToken();
+        int arrayIterations = 0;
+        if(currentToken.is(LEFT_BRACE)) {
+            // array declaration
+            tokenIterator.previous();
+            while(true) {
+                Token right = nextToken();
+                if(!right.is(LEFT_BRACE)) {
+                    break;
+                }
+
+                Token left = nextToken();
+                if(!left.is(RIGHT_BRACE)) {
+                    invalidToken("Array declaration isn't closed by ]", currentToken);
+                    return null;
+                }
+                arrayIterations++;
+            }
+        }
+        tokenIterator.previous();
+        type.setNestedArraysCount(arrayIterations);
+        return type;
     }
 
     private void parseClassDeclaration() throws CompilationException {

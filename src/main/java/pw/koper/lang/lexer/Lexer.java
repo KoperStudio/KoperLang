@@ -20,7 +20,9 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
 
     public Lexer(KoperCompiler compiler, String code) {
         this.fileName = compiler.getCompilingFile().getName();
-        this.input = code.replace(";", "\n");
+        this.input = code
+//                .replace(";", "\n")
+        ;
         compiler.setInput(input);
     }
 
@@ -31,6 +33,13 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
     private void add() {
         position++;
         column++;
+        switch (peek()) {
+            case '\n' -> {
+                line++;
+                column = 1;
+            }
+            case ';' -> add();
+        }
     }
     private final LinkedList<Token> tokens = new LinkedList<>();
 
@@ -323,9 +332,7 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
     }
 
     private boolean isSpace(char possible) {
-        if(possible == '\n' || possible == '\r') {
-            line++;
-            column = 0;
+        if(possible == '\n') {
             return true;
         }
 
