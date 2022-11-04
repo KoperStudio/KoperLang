@@ -42,6 +42,7 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
                 break;
             }
             if(next.kind.equals(TokenKind.EOF)) {
+                tokens.addLast(atom(TokenKind.RIGHT_CURLY_BRACE));
                 tokens.add(atom(TokenKind.EOF));
                 return tokens;
             } else if(next.kind.equals(TokenKind.UNKNOWN)) {

@@ -20,14 +20,4 @@ public class Main extends CompilationStage<Boolean> implements Node {
     public Boolean proceed() throws CompilationException {
         return null;
     }
-
-    private String hell = ":asdasd";
-
-    public String getHell() {
-        return this.hell;
-    }
-
-    public void setHell(String hello) {
-        this.hell = hello;
-    }
 }

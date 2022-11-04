@@ -13,6 +13,7 @@ public class ClassMemberDeclaration {
     @Setter private String name;
     @Setter private boolean isStatic;
     @Setter private boolean isFinal;
+    @Setter private int arrayDeclarationIterations = 0;
 
     private ClassMemberDeclaration() {}
 

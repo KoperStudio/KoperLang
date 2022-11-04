@@ -63,6 +63,10 @@ public class Token {
         return this.kind == kind || kind.is(TokenKind.EOF);
     }
 
+    public boolean isEof() {
+        return this.kind == TokenKind.EOF;
+    }
+
     public boolean isOrEof(TokenKind kind, KoperCompiler compiler, boolean error) {
         if(this.kind == TokenKind.EOF) {
             if(error) {

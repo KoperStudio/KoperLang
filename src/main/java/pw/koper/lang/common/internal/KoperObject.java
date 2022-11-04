@@ -7,7 +7,7 @@ public class KoperObject extends Type {
     }
 
     @Override
-    public String toDescriptor() {
+    public String getDescriptor() {
         return "L" + this.name + ";";
     }
 }

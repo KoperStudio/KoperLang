@@ -1,17 +1,12 @@
 package pw.koper.lang.common.internal;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pw.koper.lang.common.CompilationException;
-import pw.koper.lang.parser.ast.Node;
 
-import java.awt.datatransfer.FlavorEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

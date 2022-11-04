@@ -30,7 +30,11 @@ public class Parser extends CompilationStage<KoperClass> {
         this.result = new KoperClass(initialFileName);
     }
 
-    public Token nextToken() {
+    public Token nextToken() throws CompilationException {
+        if(!tokenIterator.hasNext()) {
+            invalidToken("Expected continued declarations, got EOF", currentToken);
+            throw new CompilationException(errors);
+        }
         currentToken = tokenIterator.next();
         return currentToken;
     }
@@ -46,16 +50,17 @@ public class Parser extends CompilationStage<KoperClass> {
         return result;
     }
 
-    private void parseClassBody() {
+    private void parseClassBody() throws CompilationException {
         if(!currentToken.is(LEFT_CURLY_BRACE)) {
             missingToken(LEFT_CURLY_BRACE);
             return;
         }
-
-        parseStartMemberDeclaration();
+        do {
+            parseStartMemberDeclaration();
+        } while (!currentToken.is(RIGHT_CURLY_BRACE));
     }
 
-    private void parseStartMemberDeclaration() {
+    private void parseStartMemberDeclaration() throws CompilationException {
         AccessModifier accessModifier = null;
         HashSet<TokenKind> metKinds = new HashSet<>();
         boolean expectMethod = false;
@@ -114,7 +119,7 @@ public class Parser extends CompilationStage<KoperClass> {
         parseTypeAndNameDeclaration(classMemberDeclaration, expectField, expectMethod);
     }
 
-    private void parseTypeAndNameDeclaration(ClassMemberDeclaration classMemberDeclaration, boolean expectField, boolean expectMethod) {
+    private void parseTypeAndNameDeclaration(ClassMemberDeclaration classMemberDeclaration, boolean expectField, boolean expectMethod) throws CompilationException {
         Type type;
         if(currentToken.literal.equals(result.name)) {
             // this is a constructor of the class.
@@ -136,10 +141,29 @@ public class Parser extends CompilationStage<KoperClass> {
         }
         classMemberDeclaration.setType(type);
         nextToken(); // get to the name
+        int arrayIterations = 0;
+        if(currentToken.is(LEFT_BRACE)) {
+            // array declaration
+            tokenIterator.previous();
+            while(true) {
+                Token right = nextToken();
+                if(!right.is(LEFT_BRACE)) {
+                    break;
+                }
+
+                Token left = nextToken();
+                if(!left.is(RIGHT_BRACE)) {
+                    invalidToken("Cause ytou're dimp", currentToken);
+                    return;
+                }
+                arrayIterations++;
+            }
+        }
         if(!currentToken.isStrict()) {
             invalidToken("Name contains special characters", currentToken);
             return;
         }
+        classMemberDeclaration.setArrayDeclarationIterations(arrayIterations);
         classMemberDeclaration.setName(currentToken.literal);
         Token end = nextToken();
         if(end.is(LEFT_PAREN)) { // this is 100% method
@@ -148,24 +172,26 @@ public class Parser extends CompilationStage<KoperClass> {
             KoperField field = new KoperField(classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier(), classMemberDeclaration.isStatic());
             field.hasGetter = classMemberDeclaration.isGetting();
             field.hasSetter = classMemberDeclaration.isSetting();
+            field.getType().setNestedArraysCount(arrayIterations);
             if(end.is(ASSIGN)) {
                 // parse expression, we can't really do something
                 // but we 100% know that class will have static constructor
                 result.willHaveStaticConstructor();
                 invalidToken("Field value assignments aren't implemented yet", end);
             }
+            currentToken = tokenIterator.previous();
             result.fields.add(field);
         }
     }
 
-    private void parseMethodBody(ClassMemberDeclaration member) {
+    private void parseMethodBody(ClassMemberDeclaration member) throws CompilationException {
         KoperMethod result = new KoperMethod(null, null, null, false);
         parseMethodPrototype(member);
 
         this.result.methods.add(result);
     }
 
-    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration) {
+    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration) throws CompilationException {
         if(!currentToken.is(LEFT_PAREN)) {
             unexpectedToken("'(' (paren)", currentToken);
             return;
@@ -174,12 +200,13 @@ public class Parser extends CompilationStage<KoperClass> {
         // parsing the args expression
         while(true) {
             Token typeToken = nextToken();
-            Token name = nextToken();
+
             Type type = tokenToType(typeToken);
             if(type == null) {
                 unexpectedToken("Type declaration (name or keyword of primitive type)", typeToken);
                 return;
             }
+            Token name = nextToken();
             if(!name.isStrict()) {
                 invalidToken("Argument name can't contain special characters", name);
                 return;
@@ -202,7 +229,7 @@ public class Parser extends CompilationStage<KoperClass> {
         };
     }
 
-    private void parseClassDeclaration() {
+    private void parseClassDeclaration() throws CompilationException {
         // Initial data
         String superClass = "java/lang/Object";
         HashSet<String> interfaces = new HashSet<>();
@@ -306,7 +333,7 @@ public class Parser extends CompilationStage<KoperClass> {
         result.interfaces = interfaces;
     }
 
-    private boolean parseImplementsExpression(Collection<String> interfaces) {
+    private boolean parseImplementsExpression(Collection<String> interfaces) throws CompilationException{
         while(true) {
             Token name = nextToken(); // interface itself
             Token comma = nextToken(); // ,
@@ -328,7 +355,7 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     // Fills data as imports and package
-    private void parseHead() {
+    private void parseHead() throws CompilationException{
         Token firstToken = nextToken();
         String className = "";
         if(firstToken.is(TokenKind.KEY_PACKAGE)) {

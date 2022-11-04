@@ -5,7 +5,7 @@ import lombok.Singular;
 public class PrimitiveTypes {
     private static class ByteType extends Type {
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "B";
         }
     }
@@ -13,7 +13,7 @@ public class PrimitiveTypes {
     private static class ShortType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "S";
         }
     }
@@ -21,7 +21,7 @@ public class PrimitiveTypes {
     private static class CharType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "C";
         }
     }
@@ -29,7 +29,7 @@ public class PrimitiveTypes {
     private static class IntType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "I";
         }
     }
@@ -37,7 +37,7 @@ public class PrimitiveTypes {
     private static class LongType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "J";
         }
     }
@@ -45,7 +45,7 @@ public class PrimitiveTypes {
     private static class FloatType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "F";
         }
     }
@@ -53,7 +53,7 @@ public class PrimitiveTypes {
     private static class DoubleType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "D";
         }
     }
@@ -61,7 +61,7 @@ public class PrimitiveTypes {
     private static class BooleanType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "Z";
         }
     }
@@ -69,7 +69,7 @@ public class PrimitiveTypes {
     private static class VoidType extends Type {
 
         @Override
-        public String toDescriptor() {
+        public String getDescriptor() {
             return "V";
         }
     }
