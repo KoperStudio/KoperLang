@@ -51,7 +51,6 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
                 break;
             }
             if(next.kind.equals(TokenKind.EOF)) {
-                tokens.addLast(atom(TokenKind.RIGHT_CURLY_BRACE));
                 tokens.add(atom(TokenKind.EOF));
                 return tokens;
             } else if(next.kind.equals(TokenKind.UNKNOWN)) {
@@ -86,7 +85,7 @@ public class Lexer extends CompilationStage<LinkedList<Token>> {
             return atom(TokenKind.EOF);
         }
         char current = peek();
-        if((input.length() - 1) == position) {
+        if(input.length() == position) {
             return atom(TokenKind.EOF);
         }
 
