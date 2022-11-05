@@ -20,11 +20,11 @@ public abstract class Type {
     @Getter @Setter
     private int nestedArraysCount = 0;
 
-    public int getReturnInstructionOpcode() {
-        return Opcodes.ARETURN;
-    }
+    public abstract int getReturnInstructionOpcode();
+
+    public abstract int getLoadInstructionOpcode();
 
     public Object nullValue() {
-        return null;
+        return 0;
     }
 }

@@ -13,7 +13,9 @@ public class Main extends CompilationStage<Boolean> implements Node {
     private static final String testPath = "./TestClass.koper";
     public static final boolean DEBUG = false;
     public static void main(String[] args) throws IOException {
+        long start = System.currentTimeMillis();
         new KoperCompiler(new File(testPath)).compile();
+        System.out.println("Done compilation in " + (System.currentTimeMillis() - start) + "ms");
     }
 
     @Override

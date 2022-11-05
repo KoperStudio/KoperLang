@@ -43,9 +43,9 @@ public class KoperCompiler {
             }
             return;
         }
-        for(Token token : tokens) {
-            System.out.println(token.lineNumber + ": " + token.literal);
-        }
+//        for(Token token : tokens) {
+//            System.out.println(token.lineNumber + ": " + token.literal);
+//        }
 
         Parser parser = new Parser(this);
         this.stage = parser;
@@ -58,9 +58,6 @@ public class KoperCompiler {
             }
         }
 
-//        for(Node astNode : ast) {
-//            System.out.println(astNode.asString());
-//        }
         if(result == null) {
             System.err.println("Failed to compile AST");
             return;
