@@ -6,6 +6,7 @@ import net.minecraft.TestMinecraftClient
 
 
 @mega.high.Test(message = "Hi")
+@Hell
 class TestClass extends MineObject implements com.hello.World, Hell {
     private setting getting Hell field
     private static getting final net.minecraft.client.Minecraft instances

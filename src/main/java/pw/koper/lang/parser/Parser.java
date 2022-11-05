@@ -42,7 +42,9 @@ public class Parser extends CompilationStage<KoperClass> {
     @Override
     public KoperClass proceed() throws CompilationException {
         parseHead();
-        parseClassAnnotations();
+        do {
+            parseClassAnnotations();
+        } while(!currentToken.isClassDeclarationStart());
         parseClassDeclaration();
         parseClassBody();
         if(errors.size() != 0) {
