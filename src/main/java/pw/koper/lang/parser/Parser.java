@@ -42,6 +42,7 @@ public class Parser extends CompilationStage<KoperClass> {
     @Override
     public KoperClass proceed() throws CompilationException {
         parseHead();
+        parseClassAnnotations();
         parseClassDeclaration();
         parseClassBody();
         if(errors.size() != 0) {
@@ -236,7 +237,7 @@ public class Parser extends CompilationStage<KoperClass> {
             case TYPE_FLOAT -> new PrimitiveTypes.FloatType();
             case TYPE_DOUBLE -> new PrimitiveTypes.DoubleType();
             case TYPE_BOOLEAN -> new PrimitiveTypes.BooleanType();
-            case NAME -> new KoperObject(result.getClassByName(token.literal));
+            case NAME, ANNOTATION -> new KoperObject(result.getClassByName(token.literal));
             default -> null;
         };
         if(type == null) return null;
@@ -414,10 +415,62 @@ public class Parser extends CompilationStage<KoperClass> {
                 String[] data = fullImportName.split("/");
                 result.imports.put(data[data.length - 1], fullImportName);
             }
-            if(next.isClassDeclarationStart()) {
+            if(next.isClassDeclarationStart() || next.is(ANNOTATION)) {
                 return;
             }
         }
+    }
+
+    private void parseClassAnnotations() throws CompilationException{
+        if(!currentToken.is(ANNOTATION)) return;
+
+        ClassAnnotation annotation = new ClassAnnotation(currentToken.literal, tokenToType(currentToken));
+
+        nextToken();
+
+        if(!currentToken.is(LEFT_PAREN) && currentToken.isClassDeclarationStart()){
+            result.annotations.add(annotation);
+            return;
+        }
+        if(!currentToken.is(LEFT_PAREN)){
+            invalidToken("Expected ( (Left paren)", currentToken);
+            return;
+        }
+
+        while(true){
+            Token argumentName = nextToken();
+            if(!argumentName.is(NAME)){
+                unexpectedToken("name", argumentName);
+                return;
+            }
+
+            nextToken(); // Must be assign
+            if(!currentToken.is(ASSIGN)){
+                unexpectedToken("= (ASSING)", currentToken);
+                return;
+            }
+
+            Token type = nextToken();
+
+            if(!type.isTypeDeclaration() && !type.is(STRING) && !type.is(NUMBER)){
+                unexpectedToken("type or annotation", type);
+                return;
+            }
+
+            annotation.arguments.put(argumentName.literal, tokenToType(type) == null ? type.literal : tokenToType(type).toDescriptor());
+
+            Token comma = nextToken(); // Comma expected but might be ) / End of args
+
+            if(!comma.is(RIGHT_PAREN) && !comma.is(COMMA)){
+                unexpectedToken("Right paren or comma", comma);
+                return;
+            }
+            if(comma.is(RIGHT_PAREN)){
+                break;
+            }
+        }
+        nextToken();
+        result.annotations.add(annotation);
     }
 
     // error methods
