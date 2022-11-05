@@ -2,6 +2,7 @@ package pw.koper.lang.common.internal;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.objectweb.asm.Opcodes;
 
 public abstract class Type {
 
@@ -18,4 +19,12 @@ public abstract class Type {
 
     @Getter @Setter
     private int nestedArraysCount = 0;
+
+    public int getReturnInstructionOpcode() {
+        return Opcodes.ARETURN;
+    }
+
+    public Object nullValue() {
+        return null;
+    }
 }

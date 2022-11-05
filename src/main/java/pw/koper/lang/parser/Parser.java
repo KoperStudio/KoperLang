@@ -179,7 +179,7 @@ public class Parser extends CompilationStage<KoperClass> {
         while(true) {
             Token typeToken = nextToken();
 
-            if(typeToken.is(RIGHT_PAREN)){ // if it doesnt need any args ()
+            if(typeToken.is(RIGHT_PAREN)){ // if it doesn't need any args ()
                 nextToken();
                 return;
             }
@@ -203,7 +203,7 @@ public class Parser extends CompilationStage<KoperClass> {
             }
 
             if(!comma.is(COMMA)){
-                invalidToken("Splitter (comma)", comma);
+                unexpectedToken("Splitter (comma ',')", comma);
                 return;
             }
         }
@@ -228,13 +228,14 @@ public class Parser extends CompilationStage<KoperClass> {
     private Type tokenToType(Token token) throws CompilationException{
         Type type = switch (token.kind) {
             case TYPE_VOID -> PrimitiveTypes.VOID;
-            case TYPE_BYTE -> PrimitiveTypes.BYTE;
-            case TYPE_SHORT -> PrimitiveTypes.SHORT;
-            case TYPE_CHAR -> PrimitiveTypes.CHAR;
-            case TYPE_INT -> PrimitiveTypes.INT;
-            case TYPE_LONG -> PrimitiveTypes.LONG;
-            case TYPE_FLOAT -> PrimitiveTypes.FLOAT;
-            case TYPE_DOUBLE -> PrimitiveTypes.DOUBLE;
+            case TYPE_BYTE -> new PrimitiveTypes.ByteType();
+            case TYPE_SHORT -> new PrimitiveTypes.ShortType();
+            case TYPE_CHAR -> new PrimitiveTypes.CharType();
+            case TYPE_INT -> new PrimitiveTypes.IntType();
+            case TYPE_LONG -> new PrimitiveTypes.LongType();
+            case TYPE_FLOAT -> new PrimitiveTypes.FloatType();
+            case TYPE_DOUBLE -> new PrimitiveTypes.DoubleType();
+            case TYPE_BOOLEAN -> new PrimitiveTypes.BooleanType();
             case NAME -> new KoperObject(result.getClassByName(token.literal));
             default -> null;
         };

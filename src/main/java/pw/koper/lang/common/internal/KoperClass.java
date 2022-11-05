@@ -47,12 +47,16 @@ public class KoperClass {
             access |= ACC_ABSTRACT;
         }
 
-        HashMap<String, String> staticFields = new HashMap<>();
+        // method generation
+        for(KoperMethod method : methods) {
+            method.generateBytecode(classWriter);
+        }
 
+        HashMap<String, String> staticFields = new HashMap<>();
         classWriter.visit(Opcodes.V11, access, name, null, superClass, interfaces.toArray(new String[0]));
         for(KoperField field : fields) {
 
-            classWriter.visitField(field.getOpcodeAccessModifier(), field.getName(), field.getType().toDescriptor(), field.getType().toSignature(), null);
+            field.generateBytecode(classWriter);
             if(field.isStatic()) {
                 staticFields.put(field.getName(), field.getType().toDescriptor());
             }
@@ -74,6 +78,7 @@ public class KoperClass {
             }
             staticConstructor.visitEnd();
         }
+
         classWriter.visitEnd();
         return classWriter.toByteArray();
     }
