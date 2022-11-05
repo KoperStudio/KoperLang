@@ -6,5 +6,9 @@ import com.goodbye.Hell
 @Test("GOODBYE")
 class TestClass extends MineObject implements com.hello.World, Hell {
     private setting getting Hell field
-    private getting final net.minecraft.client.Minecraft instances
+    private static getting final net.minecraft.client.Minecraft instances
+
+    public void run(){}
+
+    private void help(){}
 }

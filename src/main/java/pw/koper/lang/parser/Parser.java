@@ -163,33 +163,66 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     private void parseMethodBody(ClassMemberDeclaration member) throws CompilationException {
-        KoperMethod result = new KoperMethod(null, null, null, false);
+        KoperMethod result = new KoperMethod(member.getType(), member.getName(), member.getAccessModifier(), member.isStatic());
+        parseMethodArguments(member, result);
         parseMethodPrototype(member);
 
         this.result.methods.add(result);
     }
 
-    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration) throws CompilationException {
+    private void parseMethodArguments(ClassMemberDeclaration classMemberDeclaration, KoperMethod method) throws CompilationException {
         if(!currentToken.is(LEFT_PAREN)) {
             unexpectedToken("'(' (paren)", currentToken);
             return;
         }
 
-        // parsing the args expression
         while(true) {
             Token typeToken = nextToken();
 
+            if(typeToken.is(RIGHT_PAREN)){ // if it doesnt need any args ()
+                nextToken();
+                return;
+            }
+
             Type type = tokenToType(typeToken);
-            if(type == null) {
+            if (type == null) {
                 unexpectedToken("Type declaration (name or keyword of primitive type)", typeToken);
                 return;
             }
             Token name = nextToken();
-            if(!name.isStrict()) {
+            if (!name.isStrict()) {
                 invalidToken("Argument name can't contain special characters", name);
                 return;
             }
+            method.arguments.add(new MethodArgument(type, name.literal));
+
+            Token comma = nextToken(); // Expect comma but might be right paren if it is end of args
+            if(comma.is(RIGHT_PAREN)) {
+                nextToken();
+                break;
+            }
+
+            if(!comma.is(COMMA)){
+                invalidToken("Splitter (comma)", comma);
+                return;
+            }
         }
+    }
+
+    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration) throws CompilationException {
+        if(!currentToken.is(LEFT_CURLY_BRACE)) {
+            unexpectedToken("'{' (paren)", currentToken);
+            return;
+        }
+
+        // parsing the args expression
+        while(!currentToken.is(RIGHT_CURLY_BRACE)) {
+            nextToken();
+            /*
+                BODY PARSING
+             */
+        }
+        nextToken();
     }
 
     private Type tokenToType(Token token) throws CompilationException{
