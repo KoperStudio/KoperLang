@@ -5,6 +5,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import pw.koper.lang.parser.Parser;
 import pw.koper.lang.parser.ast.Node;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.LinkedList;
 
 public class KoperMethod extends KoperClassMember {
 
-    @Getter private final LinkedList<Node> methodBody = new LinkedList<>();
+    private final LinkedList<Node> methodBody = new LinkedList<>();
     public final ArrayList<MethodArgument> arguments;
 
     public KoperMethod(Type type, String name, AccessModifier accessModifier, boolean isStatic) {
@@ -36,7 +37,11 @@ public class KoperMethod extends KoperClassMember {
             visitor.visitVarInsn(Opcodes.ALOAD, 0); // loading 'this' variable
         }
         if(methodBody.isEmpty()) {
-            visitor.visitInsn(Opcodes.LRETURN);
+            visitor.visitInsn(Opcodes.RETURN);
+        } else {
+            for(Node node : methodBody) {
+                node.generateBytecode(visitor);
+            }
         }
         Label lastLabel = new Label();
         visitor.visitLabel(lastLabel);
@@ -45,5 +50,9 @@ public class KoperMethod extends KoperClassMember {
             visitor.visitLocalVariable(argument.getName(), argument.getType().toDescriptor(), argument.getType().toSignature(), firstLabel, lastLabel, counter);
             counter++;
         }
+    }
+
+    public void insertInstruction(Node node) {
+        methodBody.add(node);
     }
 }

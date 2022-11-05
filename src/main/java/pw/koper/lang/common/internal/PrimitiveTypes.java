@@ -11,7 +11,6 @@ public class PrimitiveTypes {
     }
 
     public static class ShortType extends Type {
-
         @Override
         public String getDescriptor() {
             return "S";

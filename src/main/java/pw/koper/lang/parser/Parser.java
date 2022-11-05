@@ -168,8 +168,7 @@ public class Parser extends CompilationStage<KoperClass> {
     private void parseMethodBody(ClassMemberDeclaration member) throws CompilationException {
         KoperMethod result = new KoperMethod(member.getType(), member.getName(), member.getAccessModifier(), member.isStatic());
         parseMethodArguments(member, result);
-        parseMethodPrototype(member);
-
+        parseMethodPrototype(member, result);
         this.result.methods.add(result);
     }
 
@@ -212,7 +211,7 @@ public class Parser extends CompilationStage<KoperClass> {
         }
     }
 
-    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration) throws CompilationException {
+    private void parseMethodPrototype(ClassMemberDeclaration classMemberDeclaration, KoperMethod result) throws CompilationException {
         if(!currentToken.is(LEFT_CURLY_BRACE)) {
             unexpectedToken("'{' (paren)", currentToken);
             return;
@@ -221,9 +220,6 @@ public class Parser extends CompilationStage<KoperClass> {
         // parsing the args expression
         while(!currentToken.is(RIGHT_CURLY_BRACE)) {
             nextToken();
-            /*
-                BODY PARSING
-             */
         }
         nextToken();
     }

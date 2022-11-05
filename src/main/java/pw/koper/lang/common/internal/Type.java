@@ -20,9 +20,9 @@ public abstract class Type {
     @Getter @Setter
     private int nestedArraysCount = 0;
 
-    public abstract int getReturnInstructionOpcode();
-
-    public abstract int getLoadInstructionOpcode();
+    public String getInstructionPrefix() {
+        return ""; // in case of void
+    }
 
     public Object nullValue() {
         return 0;

@@ -14,16 +14,6 @@ public class KoperObject extends Type {
     }
 
     @Override
-    public int getReturnInstructionOpcode() {
-        return Opcodes.ARETURN;
-    }
-
-    @Override
-    public int getLoadInstructionOpcode() {
-        return Opcodes.ALOAD;
-    }
-
-    @Override
     public Object nullValue() {
         return null;
     }
