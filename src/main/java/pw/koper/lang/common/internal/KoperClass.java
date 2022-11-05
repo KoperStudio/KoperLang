@@ -7,10 +7,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pw.koper.lang.common.CompilationException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 import static pw.koper.lang.common.StringUtil.toJvmName;
@@ -27,6 +24,7 @@ public class KoperClass {
     public Set<String> interfaces;
     public Set<KoperMethod> methods = new HashSet<>();
     public Set<KoperField> fields = new HashSet<>();
+    public List<ClassAnnotation> annotations = new ArrayList<>();
 
     // Map from short name to full name
     public HashMap<String, String> imports = new HashMap<>();
@@ -45,6 +43,10 @@ public class KoperClass {
         }
         if(isAbstract) {
             access |= ACC_ABSTRACT;
+        }
+
+        for(ClassAnnotation annotation : annotations){
+            annotation.generateBytecode(classWriter);
         }
 
         // method generation

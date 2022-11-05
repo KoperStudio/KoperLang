@@ -4,7 +4,9 @@ import test.classs.MineObject
 import com.goodbye.Hell
 import net.minecraft.TestMinecraftClient
 
-@Test("GOODBYE")
+
+@mega.high.Test(message = "Hi")
+@Hell
 class TestClass extends MineObject implements com.hello.World, Hell {
     private setting getting Hell field
     private static getting final net.minecraft.client.Minecraft instances
