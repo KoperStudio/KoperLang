@@ -42,9 +42,7 @@ public class Parser extends CompilationStage<KoperClass> {
     @Override
     public KoperClass proceed() throws CompilationException {
         parseHead();
-        do {
-            parseClassAnnotations();
-        } while(!currentToken.isClassDeclarationStart());
+        result.annotationList.addAll(parseAnnotations());
         parseClassDeclaration();
         parseClassBody();
         if(errors.size() != 0) {
@@ -68,9 +66,14 @@ public class Parser extends CompilationStage<KoperClass> {
         HashSet<TokenKind> metKinds = new HashSet<>();
         boolean expectMethod = false;
         boolean expectField = false;
+        List<Annotation> annotations = new ArrayList<>();
         ClassMemberDeclaration classMemberDeclaration = ClassMemberDeclaration.builder();
         while(true) {
             Token current = nextToken();
+            if(current.is(ANNOTATION)){
+                annotations.addAll(parseAnnotations());
+            }
+
             if(metKinds.contains(current.kind)) {
                 invalidToken("Already declared that modifier of the method", current);
                 return;
@@ -119,17 +122,17 @@ public class Parser extends CompilationStage<KoperClass> {
             accessModifier = AccessModifier.PUBLIC;
         }
         classMemberDeclaration.setAccessModifier(accessModifier);
-        parseTypeAndNameDeclaration(classMemberDeclaration, expectField, expectMethod);
+        parseTypeAndNameDeclaration(classMemberDeclaration, expectField, expectMethod, annotations);
     }
 
-    private void parseTypeAndNameDeclaration(ClassMemberDeclaration classMemberDeclaration, boolean expectField, boolean expectMethod) throws CompilationException {
+    private void parseTypeAndNameDeclaration(ClassMemberDeclaration classMemberDeclaration, boolean expectField, boolean expectMethod, List<Annotation> annotations) throws CompilationException {
         Type type;
         if(currentToken.literal.equals(result.name)) {
             // this is a constructor of the class.
             // <init> method
             type = PrimitiveTypes.VOID;
             classMemberDeclaration.setType(type);
-            parseMethodBody(classMemberDeclaration);
+            parseMethodBody(classMemberDeclaration, annotations);
             return;
         }
 
@@ -151,7 +154,7 @@ public class Parser extends CompilationStage<KoperClass> {
         classMemberDeclaration.setName(currentToken.literal);
         Token end = nextToken();
         if(end.is(LEFT_PAREN)) { // this is 100% method
-            parseMethodBody(classMemberDeclaration);
+            parseMethodBody(classMemberDeclaration, annotations);
         } else { // this is field
             KoperField field = new KoperField(classMemberDeclaration);
             if(end.is(ASSIGN)) {
@@ -160,18 +163,82 @@ public class Parser extends CompilationStage<KoperClass> {
                 result.willHaveStaticConstructor();
                 invalidToken("Field value assignments aren't implemented yet", end);
             }
+
+            field.annotationList.addAll(annotations);
             currentToken = tokenIterator.previous();
             result.fields.add(field);
         }
     }
 
-    private void parseMethodBody(ClassMemberDeclaration member) throws CompilationException {
+    private void parseMethodBody(ClassMemberDeclaration member, List<Annotation> annotations) throws CompilationException {
         KoperMethod result = new KoperMethod(member.getType(), member.getName(), member.getAccessModifier(), member.isStatic());
+        result.annotationList.addAll(annotations);
         parseMethodArguments(member, result);
         parseMethodPrototype(member, result);
         this.result.methods.add(result);
     }
 
+    private List<Annotation> parseAnnotations() throws CompilationException{
+        List<Annotation> result = new ArrayList<>();
+
+        while(currentToken.is(ANNOTATION)) {
+            if (!currentToken.is(ANNOTATION)) return result;
+
+            Annotation annotation = new Annotation(currentToken.literal, tokenToType(currentToken));
+
+            nextToken();
+
+            if (!currentToken.is(LEFT_PAREN) && currentToken.isClassDeclarationStart()) {
+                result.add(annotation);
+                return result;
+            }
+            if(currentToken.is(ANNOTATION)){
+                result.add(annotation);
+                continue;
+            }
+
+            if (!currentToken.is(LEFT_PAREN)) {
+                invalidToken("Expected ( (Left paren)", currentToken);
+                return result;
+            }
+
+            while (true) {
+                Token argumentName = nextToken();
+                if (!argumentName.is(NAME)) {
+                    unexpectedToken("name", argumentName);
+                    return result;
+                }
+
+                nextToken(); // Must be assign
+                if (!currentToken.is(ASSIGN)) {
+                    unexpectedToken("= (ASSING)", currentToken);
+                    return result;
+                }
+
+                Token type = nextToken();
+
+                if (!type.isTypeDeclaration() && !type.is(STRING) && !type.is(NUMBER)) {
+                    unexpectedToken("type or annotation", type);
+                    return result;
+                }
+
+                annotation.arguments.put(argumentName.literal, tokenToType(type) == null ? type.literal : tokenToType(type).toDescriptor());
+
+                Token comma = nextToken(); // Comma expected but might be ) / End of args
+
+                if (!comma.is(RIGHT_PAREN) && !comma.is(COMMA)) {
+                    unexpectedToken("Right paren or comma", comma);
+                    return result;
+                }
+                if (comma.is(RIGHT_PAREN)) {
+                    break;
+                }
+            }
+            result.add(annotation);
+            nextToken();
+        }
+        return result;
+    }
     private void parseMethodArguments(ClassMemberDeclaration classMemberDeclaration, KoperMethod method) throws CompilationException {
         if(!currentToken.is(LEFT_PAREN)) {
             unexpectedToken("'(' (paren)", currentToken);
@@ -417,58 +484,6 @@ public class Parser extends CompilationStage<KoperClass> {
                 return;
             }
         }
-    }
-
-    private void parseClassAnnotations() throws CompilationException{
-        if(!currentToken.is(ANNOTATION)) return;
-
-        ClassAnnotation annotation = new ClassAnnotation(currentToken.literal, tokenToType(currentToken));
-
-        nextToken();
-
-        if(!currentToken.is(LEFT_PAREN) && currentToken.isClassDeclarationStart()){
-            result.annotations.add(annotation);
-            return;
-        }
-        if(!currentToken.is(LEFT_PAREN)){
-            invalidToken("Expected ( (Left paren)", currentToken);
-            return;
-        }
-
-        while(true){
-            Token argumentName = nextToken();
-            if(!argumentName.is(NAME)){
-                unexpectedToken("name", argumentName);
-                return;
-            }
-
-            nextToken(); // Must be assign
-            if(!currentToken.is(ASSIGN)){
-                unexpectedToken("= (ASSING)", currentToken);
-                return;
-            }
-
-            Token type = nextToken();
-
-            if(!type.isTypeDeclaration() && !type.is(STRING) && !type.is(NUMBER)){
-                unexpectedToken("type or annotation", type);
-                return;
-            }
-
-            annotation.arguments.put(argumentName.literal, tokenToType(type) == null ? type.literal : tokenToType(type).toDescriptor());
-
-            Token comma = nextToken(); // Comma expected but might be ) / End of args
-
-            if(!comma.is(RIGHT_PAREN) && !comma.is(COMMA)){
-                unexpectedToken("Right paren or comma", comma);
-                return;
-            }
-            if(comma.is(RIGHT_PAREN)){
-                break;
-            }
-        }
-        nextToken();
-        result.annotations.add(annotation);
     }
 
     // error methods

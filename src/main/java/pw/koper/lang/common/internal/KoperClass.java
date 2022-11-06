@@ -24,7 +24,7 @@ public class KoperClass {
     public Set<String> interfaces;
     public Set<KoperMethod> methods = new HashSet<>();
     public Set<KoperField> fields = new HashSet<>();
-    public List<ClassAnnotation> annotations = new ArrayList<>();
+    public List<Annotation> annotationList = new ArrayList<>();
 
     // Map from short name to full name
     public HashMap<String, String> imports = new HashMap<>();
@@ -45,7 +45,7 @@ public class KoperClass {
             access |= ACC_ABSTRACT;
         }
 
-        for(ClassAnnotation annotation : annotations){
+        for(Annotation annotation : annotationList){
             annotation.generateBytecode(classWriter);
         }
 

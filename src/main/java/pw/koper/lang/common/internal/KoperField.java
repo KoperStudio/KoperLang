@@ -3,11 +3,17 @@ package pw.koper.lang.common.internal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import pw.koper.lang.parser.ast.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 public class KoperField extends KoperClassMember {
+
+    public List<Annotation> annotationList = new ArrayList<>();
 
     public boolean hasSetter = false;
     public boolean hasGetter = false;
@@ -26,6 +32,9 @@ public class KoperField extends KoperClassMember {
 
     @Override
     public void generateBytecode(ClassWriter classWriter) {
-        classWriter.visitField(getOpcodeAccessModifier(), getName(), getType().toDescriptor(), getType().toSignature(), null);
+        FieldVisitor visitor = classWriter.visitField(getOpcodeAccessModifier(), getName(), getType().toDescriptor(), getType().toSignature(), null);
+        for(Annotation annotation : annotationList){
+            annotation.generateBytecode(visitor);
+        }
     }
 }
