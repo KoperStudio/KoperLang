@@ -20,12 +20,8 @@ public class KoperField extends KoperClassMember {
 
     public Node valueDeclaration; // as all nodes accepting methodwriter, we will init static method in the <cinit> method
 
-    public KoperField(Type type, String name, AccessModifier accessModifier, boolean isStatic) {
-        super(type, name, accessModifier, isStatic, false);
-    }
-
-    public KoperField(ClassMemberDeclaration classMemberDeclaration) {
-        super(classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier(), classMemberDeclaration.isStatic(), classMemberDeclaration.isFinal());
+    public KoperField(KoperClass forClass, ClassMemberDeclaration classMemberDeclaration) {
+        super(forClass, classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier(), classMemberDeclaration.isStatic(), classMemberDeclaration.isFinal());
         hasSetter = classMemberDeclaration.isSetting();
         hasGetter = classMemberDeclaration.isGetting();
     }

@@ -5,6 +5,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pw.koper.lang.parser.ast.Node;
+import pw.koper.lang.util.IntIterator;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,12 +14,13 @@ import java.util.List;
 public class KoperMethod extends KoperClassMember {
 
     public final List<Annotation> annotationList = new ArrayList<>();
-    private final LinkedList<Node> methodBody = new LinkedList<>();
+    public final LinkedList<Node> methodBody = new LinkedList<>();
 
     public final ArrayList<MethodArgument> arguments;
+    public IntIterator methodCounter = new IntIterator();
 
-    public KoperMethod(Type type, String name, AccessModifier accessModifier, boolean isStatic) {
-        super(type, name, accessModifier, isStatic, false);
+    public KoperMethod(KoperClass forClass, Type type, String name, AccessModifier accessModifier, boolean isStatic) {
+        super(forClass, type, name, accessModifier, isStatic, false);
         arguments = new ArrayList<>();
     }
 

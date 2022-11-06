@@ -87,6 +87,7 @@ public enum TokenKind {
     KEY_IMPLEMENTS("implements"),
     TYPE_VOID("void"),
     KEY_INTERFACE("interface"),
+    KEY_CONSTRUCT("construct"),
     KEY_ENUM("enum"),
     KEY_ABSTRACT("abstract"),
     KEY_VOLATILE("volatile"),

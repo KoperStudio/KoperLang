@@ -5,12 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="502ec4a8-793b-41a0-88fc-d251cb823bf5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/TestClass.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/LocalVariableStatement.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/util/IntIterator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/StringUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/util/StringUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClass.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClassMember.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperClassMember.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperField.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperField.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperMethod.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/KoperObject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/PrimitiveTypes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/PrimitiveTypes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/Type.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/common/internal/Type.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/lexer/TokenKind.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/Parser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/Node.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/StatementAST.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/pw/koper/lang/parser/ast/StatementAST.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +86,8 @@
 }</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="pw.koper.lang.parser.ast" />
+      <recent name="pw.koper.lang.parser" />
       <recent name="pw.koper.lang.common.internal" />
     </key>
   </component>
@@ -134,7 +145,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/pw/koper/lang/common/KoperCompiler.java</url>
-          <line>21</line>
+          <line>20</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>

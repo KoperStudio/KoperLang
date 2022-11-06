@@ -1,4 +1,4 @@
-package pw.koper.lang.common;
+package pw.koper.lang.util;
 
 public class StringUtil {
     public static String getEntireLine(String text, int index) {

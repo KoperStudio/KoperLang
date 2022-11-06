@@ -10,7 +10,7 @@ import pw.koper.lang.common.CompilationException;
 import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
-import static pw.koper.lang.common.StringUtil.toJvmName;
+import static pw.koper.lang.util.StringUtil.toJvmName;
 
 public class KoperClass {
     private final String sourceFileName;
@@ -73,7 +73,7 @@ public class KoperClass {
         }
 
         if(staticConstructor) {
-            MethodVisitor staticConstructor = classWriter.visitMethod(ACC_PUBLIC | ACC_STATIC, "<cinit>", "()V", null, new String[0]);
+            MethodVisitor staticConstructor = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, new String[0]);
             for(Map.Entry<String, String> entry : staticFields.entrySet()) {
                 staticConstructor.visitLdcInsn(new Object());
                 staticConstructor.visitFieldInsn(PUTSTATIC, name, entry.getKey(), entry.getValue());

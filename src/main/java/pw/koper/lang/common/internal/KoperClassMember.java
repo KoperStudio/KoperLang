@@ -10,6 +10,7 @@ import org.objectweb.asm.Opcodes;
 @Setter
 @AllArgsConstructor
 public class KoperClassMember {
+    protected final KoperClass forClass;
     private Type type;
     private String name;
     private AccessModifier accessModifier;

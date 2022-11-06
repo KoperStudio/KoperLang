@@ -1,16 +1,23 @@
 package pw.koper.lang.parser.ast;
 
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.objectweb.asm.MethodVisitor;
+import pw.koper.lang.common.internal.KoperClass;
+import pw.koper.lang.common.internal.KoperMethod;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 
-public interface Node {
+@AllArgsConstructor
+public abstract class Node {
 
-    default void generateBytecode(MethodVisitor visitor) {}
+    private final int lineNumber;
+    private final KoperMethod forMethod;
+
+    public void generateBytecode(MethodVisitor visitor) {}
     @SneakyThrows
-    default String asString() {
+    public String asString() {
         StringBuilder result = new StringBuilder(this.getClass().getSimpleName()).append("{");
         for(Field field : this.getClass().getDeclaredFields()) {
             field.setAccessible(true);

@@ -8,16 +8,15 @@ import pw.koper.lang.lexer.Lexer;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.parser.Parser;
 import pw.koper.lang.parser.ast.Node;
+import pw.koper.lang.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 public class KoperCompiler {
     private final Lexer lexer;

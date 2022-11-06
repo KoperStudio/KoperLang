@@ -1,17 +1,15 @@
 package pw.koper.lang.parser;
 
-import pw.koper.lang.common.CodeError;
-import pw.koper.lang.common.CompilationException;
-import pw.koper.lang.common.CompilationStage;
-import pw.koper.lang.common.KoperCompiler;
+import pw.koper.lang.common.*;
 import pw.koper.lang.common.internal.*;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.lexer.TokenKind;
+import pw.koper.lang.parser.ast.LocalVariableStatement;
 import pw.koper.lang.parser.ast.Node;
 
 import java.util.*;
 
-import static pw.koper.lang.common.StringUtil.toJvmName;
+import static pw.koper.lang.util.StringUtil.toJvmName;
 import static pw.koper.lang.lexer.TokenKind.*;
 
 public class Parser extends CompilationStage<KoperClass> {
@@ -156,7 +154,7 @@ public class Parser extends CompilationStage<KoperClass> {
         if(end.is(LEFT_PAREN)) { // this is 100% method
             parseMethodBody(classMemberDeclaration, annotations);
         } else { // this is field
-            KoperField field = new KoperField(classMemberDeclaration);
+            KoperField field = new KoperField(this.result, classMemberDeclaration);
             if(end.is(ASSIGN)) {
                 // parse expression, we can't really do something
                 // but we 100% know that class will have static constructor
@@ -171,7 +169,7 @@ public class Parser extends CompilationStage<KoperClass> {
     }
 
     private void parseMethodBody(ClassMemberDeclaration member, List<Annotation> annotations) throws CompilationException {
-        KoperMethod result = new KoperMethod(member.getType(), member.getName(), member.getAccessModifier(), member.isStatic());
+        KoperMethod result = new KoperMethod(this.result, member.getType(), member.getName(), member.getAccessModifier(), member.isStatic());
         result.annotationList.addAll(annotations);
         parseMethodArguments(member, result);
         parseMethodPrototype(member, result);
@@ -286,9 +284,35 @@ public class Parser extends CompilationStage<KoperClass> {
 
         // parsing the args expression
         while(!currentToken.is(RIGHT_CURLY_BRACE)) {
-            nextToken();
+            parseStatement(result);
         }
         nextToken();
+    }
+
+    private void parseStatement(KoperMethod result) throws CompilationException {
+        Token type = nextToken();
+        boolean isDeclaration = false;
+        switch (type.kind) {
+            case NAME -> {
+                isDeclaration = true;
+            }
+            default -> {
+                notAStatement(type);
+                return;
+            }
+        };
+        Token name = nextToken();
+        if(name.is(NAME) && name.isStrict()) {
+            LocalVariableStatement localVariable = new LocalVariableStatement(name.lineNumber, result);
+            result.methodBody.add(localVariable);
+        } else {
+
+        }
+
+    }
+
+    private void parseExpression(KoperMethod result) throws CompilationException {
+
     }
 
     private Type tokenToType(Token token) throws CompilationException{
@@ -497,6 +521,10 @@ public class Parser extends CompilationStage<KoperClass> {
 
     private void missingToken(TokenKind whatToken) {
         errors.add(new CodeError(this, "Missing token: " + whatToken.literal + " is missing"));
+    }
+
+    private void notAStatement(Token token) {
+        errors.add(new CodeError(compiler, "Not a statement.", token));
     }
 
     private void notDeclared(String what, Token where) {
