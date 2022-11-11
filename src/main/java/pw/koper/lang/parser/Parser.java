@@ -4,8 +4,10 @@ import pw.koper.lang.common.*;
 import pw.koper.lang.common.internal.*;
 import pw.koper.lang.lexer.Token;
 import pw.koper.lang.lexer.TokenKind;
-import pw.koper.lang.parser.ast.LocalVariableStatement;
+import pw.koper.lang.parser.ast.impl.LocalVariableStatement;
 import pw.koper.lang.parser.ast.Node;
+import pw.koper.lang.parser.ast.impl.NumberExpression;
+import pw.koper.lang.parser.ast.impl.StringExpression;
 
 import java.util.*;
 
@@ -25,7 +27,7 @@ public class Parser extends CompilationStage<KoperClass> {
         this.compiler = compiler;
         this.tokenIterator = (ListIterator<Token>) compiler.getTokens().iterator();
         this.initialFileName = compiler.getCompilingFile().getName();
-        this.result = new KoperClass(initialFileName);
+        this.result = new KoperClass(initialFileName, compiler);
     }
 
     public Token nextToken() throws CompilationException {
@@ -158,8 +160,12 @@ public class Parser extends CompilationStage<KoperClass> {
             if(end.is(ASSIGN)) {
                 // parse expression, we can't really do something
                 // but we 100% know that class will have static constructor
-                result.willHaveStaticConstructor();
-                invalidToken("Field value assignments aren't implemented yet", end);
+                nextToken();
+                Node initializer = parseExpression();
+                if(initializer == null) {
+                    return;
+                }
+                field.initializer = initializer;
             }
 
             field.annotationList.addAll(annotations);
@@ -170,8 +176,10 @@ public class Parser extends CompilationStage<KoperClass> {
 
     private void parseMethodBody(ClassMemberDeclaration member, List<Annotation> annotations) throws CompilationException {
         KoperMethod result = new KoperMethod(this.result, member.getType(), member.getName(), member.getAccessModifier(), member.isStatic());
+        result.setDeclarationStart(currentToken.start);
         result.annotationList.addAll(annotations);
         parseMethodArguments(member, result);
+        result.setDeclarationEnd(currentToken.end);
         parseMethodPrototype(member, result);
         this.result.methods.add(result);
     }
@@ -284,7 +292,8 @@ public class Parser extends CompilationStage<KoperClass> {
 
         // parsing the args expression
         while(!currentToken.is(RIGHT_CURLY_BRACE)) {
-            parseStatement(result);
+            nextToken();
+//            parseStatement(result);
         }
         nextToken();
     }
@@ -311,8 +320,27 @@ public class Parser extends CompilationStage<KoperClass> {
 
     }
 
-    private void parseExpression(KoperMethod result) throws CompilationException {
+    private Node parseExpression(KoperMethod in) throws CompilationException {
+        if(currentToken.is(STRING)) {
+            return new StringExpression(currentToken.literal);
+        } else if(currentToken.is(NUMBER)) {
+            return new NumberExpression(currentToken.literal);
+        }
 
+        return new LocalVariableStatement(123, in);
+    }
+
+    private Node parseExpression() throws CompilationException {
+        return this.parseExpression(null);
+    }
+
+    private KoperObject typeNameToClass(Token token) {
+        String className = result.getClassByName(token.literal);
+        if(className == null) {
+            errors.add(new CodeError(compiler, "Symbol not found", token));
+            return null;
+        }
+        return new KoperObject(className);
     }
 
     private Type tokenToType(Token token) throws CompilationException{
@@ -326,7 +354,7 @@ public class Parser extends CompilationStage<KoperClass> {
             case TYPE_FLOAT -> new PrimitiveTypes.FloatType();
             case TYPE_DOUBLE -> new PrimitiveTypes.DoubleType();
             case TYPE_BOOLEAN -> new PrimitiveTypes.BooleanType();
-            case NAME, ANNOTATION -> new KoperObject(result.getClassByName(token.literal));
+            case NAME, ANNOTATION -> typeNameToClass(token);
             default -> null;
         };
         if(type == null) return null;

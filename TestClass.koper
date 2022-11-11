@@ -3,17 +3,18 @@ package me.mrfunny
 import test.classs.MineObject
 import com.goodbye.Hell
 import net.minecraft.TestMinecraftClient
-
+import java.lang.String
 
 @mega.high.Test(message = "Hi")
 @Hell
 class TestClass extends MineObject implements com.hello.World, Hell {
     private setting getting Hell field
     private static getting final net.minecraft.client.Minecraft instances
+    private static getting String hi = "Hello World"
 
     public void run(){}
 
     private void help(){}
 
-    private TestMinecraftClient getIt(com.hello.World hello, int bye){}
+    private void getIt(com.hello.World hello, int bye){}
 }

@@ -9,12 +9,7 @@ import pw.koper.lang.common.internal.KoperMethod;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
-@AllArgsConstructor
 public abstract class Node {
-
-    private final int lineNumber;
-    private final KoperMethod forMethod;
-
     public void generateBytecode(MethodVisitor visitor) {}
     @SneakyThrows
     public String asString() {

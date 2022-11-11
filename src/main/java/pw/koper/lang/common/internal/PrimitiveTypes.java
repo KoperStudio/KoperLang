@@ -1,6 +1,7 @@
 package pw.koper.lang.common.internal;
 
 import lombok.Singular;
+import org.objectweb.asm.Opcodes;
 
 public class PrimitiveTypes {
     public static class ByteType extends Type {
@@ -39,6 +40,11 @@ public class PrimitiveTypes {
         public String getDescriptor() {
             return "J";
         }
+
+        @Override
+        public String getInstructionPrefix() {
+            return "L";
+        }
     }
 
     public static class FloatType extends Type {
@@ -47,12 +53,21 @@ public class PrimitiveTypes {
         public String getDescriptor() {
             return "F";
         }
+
+        @Override
+        public String getInstructionPrefix() {
+            return "F";
+        }
     }
 
     public static class DoubleType extends Type {
 
         @Override
         public String getDescriptor() {
+            return "D";
+        }
+        @Override
+        public String getInstructionPrefix() {
             return "D";
         }
     }
@@ -70,6 +85,11 @@ public class PrimitiveTypes {
         @Override
         public String getDescriptor() {
             return "V";
+        }
+
+        @Override
+        public String getInstructionPrefix() {
+            return "";
         }
     }
     public static final Type VOID = new VoidType();

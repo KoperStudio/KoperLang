@@ -14,6 +14,11 @@ public class KoperObject extends Type {
     }
 
     @Override
+    public String getInstructionPrefix() {
+        return "A";
+    }
+
+    @Override
     public Object nullValue() {
         return null;
     }

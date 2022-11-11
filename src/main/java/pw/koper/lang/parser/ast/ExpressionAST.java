@@ -1,4 +1,6 @@
 package pw.koper.lang.parser.ast;
 
-public class ExpressionAST implements Node {
+import pw.koper.lang.common.internal.KoperMethod;
+
+public class ExpressionAST extends Node {
 }

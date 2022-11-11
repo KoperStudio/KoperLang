@@ -63,6 +63,10 @@ public class Token {
         return this.kind == kind || kind.is(TokenKind.EOF);
     }
 
+    public boolean isValue() {
+        return kind.is(TokenKind.STRING) || kind.is(TokenKind.NUMBER) || kind.is(TokenKind.KEY_NULL);
+    }
+
     public boolean isEof() {
         return this.kind == TokenKind.EOF;
     }

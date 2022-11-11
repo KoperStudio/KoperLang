@@ -1,11 +1,12 @@
 package pw.koper.lang.common.internal;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
 import pw.koper.lang.parser.ast.Node;
+import pw.koper.lang.parser.ast.impl.NonComplexStatement;
+import pw.koper.lang.parser.ast.impl.NumberExpression;
+import pw.koper.lang.parser.ast.impl.StringExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class KoperField extends KoperClassMember {
     public boolean hasGetter = false;
 
     public Node valueDeclaration; // as all nodes accepting methodwriter, we will init static method in the <cinit> method
+    public Node initializer = null;
 
     public KoperField(KoperClass forClass, ClassMemberDeclaration classMemberDeclaration) {
         super(forClass, classMemberDeclaration.getType(), classMemberDeclaration.getName(), classMemberDeclaration.getAccessModifier(), classMemberDeclaration.isStatic(), classMemberDeclaration.isFinal());
@@ -28,9 +30,33 @@ public class KoperField extends KoperClassMember {
 
     @Override
     public void generateBytecode(ClassWriter classWriter) {
-        FieldVisitor visitor = classWriter.visitField(getOpcodeAccessModifier(), getName(), getType().toDescriptor(), getType().toSignature(), null);
+        Object initialValue;
+        if(!isComplexInitialisation() && isFinal()) {
+            initialValue = ((NonComplexStatement)initializer).getValue();
+        } else {
+            initialValue = null;
+            if(initializer != null) {
+                if(isStatic()) {
+                    forClass.staticConstructor.toInitialise.add(this);
+                } else {
+                    for(KoperConstructor constructor : forClass.constructors) {
+                        constructor.toInitialise.add(this);
+                    }
+                }
+            }
+        }
+
+        FieldVisitor visitor = classWriter.visitField(getOpcodeAccessModifier(), getName(), getType().toDescriptor(), getType().toSignature(), initialValue);
         for(Annotation annotation : annotationList){
             annotation.generateBytecode(visitor);
         }
+    }
+
+    public boolean isInitialised() {
+        return this.initializer != null;
+    }
+
+    public boolean isComplexInitialisation() {
+        return !(initializer instanceof NonComplexStatement);
     }
 }

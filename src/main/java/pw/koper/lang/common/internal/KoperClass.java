@@ -5,7 +5,10 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
+import pw.koper.lang.common.KoperCompiler;
+import pw.koper.lang.parser.ast.Node;
 
 import java.util.*;
 
@@ -14,6 +17,7 @@ import static pw.koper.lang.util.StringUtil.toJvmName;
 
 public class KoperClass {
     private final String sourceFileName;
+    public final KoperCompiler compiler;
     public String name;
     public boolean isPublic;
     public boolean isAbstract;
@@ -24,15 +28,19 @@ public class KoperClass {
     public Set<String> interfaces;
     public Set<KoperMethod> methods = new HashSet<>();
     public Set<KoperField> fields = new HashSet<>();
+    public StaticConstructor staticConstructor = null;
+    public HashSet<KoperConstructor> constructors = new HashSet<>();
     public List<Annotation> annotationList = new ArrayList<>();
 
     // Map from short name to full name
     public HashMap<String, String> imports = new HashMap<>();
-    private boolean staticConstructor;
 
-    public KoperClass(String sourceFileName) {
+    public KoperClass(String sourceFileName, KoperCompiler compiler) {
         this.sourceFileName = sourceFileName;
+        this.compiler = compiler;
     }
+
+    public HashSet<CodeError> generationErrors = new HashSet<>();
     public byte[] generateClass() throws CompilationException {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         classWriter.visitSource(this.sourceFileName.replace(".koper", ".class"), null);
@@ -49,37 +57,40 @@ public class KoperClass {
             annotation.generateBytecode(classWriter);
         }
 
+        checkErrorsOrThrow();
+
         // method generation
         for(KoperMethod method : methods) {
             method.generateBytecode(classWriter);
         }
 
-        HashMap<String, String> staticFields = new HashMap<>();
+        checkErrorsOrThrow();
+
         classWriter.visit(Opcodes.V11, access, name, null, superClass, interfaces.toArray(new String[0]));
         for(KoperField field : fields) {
 
             field.generateBytecode(classWriter);
-            if(field.isStatic()) {
-                staticFields.put(field.getName(), field.getType().toDescriptor());
+            if(field.isStatic() && field.isInitialised() && field.isComplexInitialisation()) {
+                if(staticConstructor == null) {
+                    willHaveStaticConstructor();
+                }
             }
 
             if(field.hasGetter) {
-                generateGetter(classWriter, field);
+                generateGetter(classWriter, field, field.isStatic());
             }
 
             if(field.hasSetter) {
-                generateSetter(classWriter, field);
+                generateSetter(classWriter, field, field.isStatic());
             }
+        }
+        checkErrorsOrThrow();
+
+        if(staticConstructor != null) {
+            staticConstructor.generateBytecode(classWriter);
         }
 
-        if(staticConstructor) {
-            MethodVisitor staticConstructor = classWriter.visitMethod(ACC_STATIC, "<clinit>", "()V", null, new String[0]);
-            for(Map.Entry<String, String> entry : staticFields.entrySet()) {
-                staticConstructor.visitLdcInsn(new Object());
-                staticConstructor.visitFieldInsn(PUTSTATIC, name, entry.getKey(), entry.getValue());
-            }
-            staticConstructor.visitEnd();
-        }
+        checkErrorsOrThrow();
 
         classWriter.visitEnd();
         return classWriter.toByteArray();
@@ -89,6 +100,12 @@ public class KoperClass {
         return classType == ClassType.CLASS;
     }
 
+    private void checkErrorsOrThrow() throws CompilationException {
+        if(!generationErrors.isEmpty()) {
+            throw new CompilationException(generationErrors);
+        }
+    }
+
     public String getClassByName(String name) {
         if(name.contains(".")) return toJvmName(name);
 
@@ -96,15 +113,23 @@ public class KoperClass {
     }
 
     public void willHaveStaticConstructor() {
-        this.staticConstructor = true;
+        this.staticConstructor = new StaticConstructor(this);
     }
 
-    private void generateGetter(ClassWriter writer, KoperField field) {
+    private void generateGetter(ClassWriter writer, KoperField field, boolean isStatic) {
         MethodVisitor getter = writer.visitMethod(ACC_PUBLIC, "get" + StringUtils.capitalize(field.getName()), "()" + field.getType().toDescriptor(), null, new String[0]);
         Label body = new Label();
         getter.visitLabel(body);
-        getter.visitVarInsn(ALOAD, 0);
-        getter.visitFieldInsn(GETFIELD, name, field.getName(), field.getType().toDescriptor());
+        int instruction;
+        if(isStatic) {
+            instruction = GETSTATIC;
+        } else {
+            getter.visitVarInsn(ALOAD, 0);
+            instruction = GETFIELD;
+        }
+
+        getter.visitFieldInsn(instruction, name, field.getName(), field.getType().toDescriptor());
+
         getter.visitInsn(ARETURN);
         Label meta = new Label();
         getter.visitLabel(meta);
@@ -112,14 +137,20 @@ public class KoperClass {
         getter.visitEnd();
     }
 
-    private void generateSetter(ClassWriter writer, KoperField field) {
+    private void generateSetter(ClassWriter writer, KoperField field, boolean isStatic) {
         MethodVisitor setter = writer.visitMethod(ACC_PUBLIC, "set" + StringUtils.capitalize(field.getName()), "(" + field.getType().toDescriptor() + ")V", null, new String[0]);
         Label body = new Label();
         setter.visitLabel(body);
+        int instruction;
+        if(isStatic) {
+            instruction = PUTSTATIC;
+        } else {
+            setter.visitVarInsn(ALOAD, 0);
+            instruction = PUTFIELD;
+        }
 
-        setter.visitVarInsn(ALOAD, 0);
         setter.visitVarInsn(ALOAD, 1);
-        setter.visitFieldInsn(PUTFIELD, name, field.getName(), field.getType().toDescriptor());
+        setter.visitFieldInsn(instruction, name, field.getName(), field.getType().toDescriptor());
         setter.visitInsn(RETURN);
         Label meta = new Label();
         setter.visitLabel(meta);

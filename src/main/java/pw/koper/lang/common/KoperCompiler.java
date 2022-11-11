@@ -71,7 +71,7 @@ public class KoperCompiler {
             Files.write(Path.of(targetFile), resultedFile);
         } catch (CompilationException e) {
             for(CodeError error : e.getErrors()) {
-                System.err.println("Error: " + error.render());
+                System.err.println(error.render());
             }
         } catch (IOException e) {
             System.err.println("Failed to write result to file " + targetFile);

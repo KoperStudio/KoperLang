@@ -21,7 +21,7 @@ public abstract class Type {
     private int nestedArraysCount = 0;
 
     public String getInstructionPrefix() {
-        return ""; // in case of void
+        return "I"; // integer
     }
 
     public Object nullValue() {
