@@ -10,6 +10,7 @@ import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.KoperCompiler;
 import pw.koper.lang.parser.ast.Node;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -30,6 +31,9 @@ public class KoperClass {
     public Set<KoperField> fields = new HashSet<>();
     public StaticConstructor staticConstructor = null;
     public HashSet<KoperConstructor> constructors = new HashSet<>();
+
+    public HashSet<KoperField> toStaticInit = new HashSet<>();
+    public HashSet<KoperField> toObjectInit = new HashSet<>();
     public List<Annotation> annotationList = new ArrayList<>();
 
     // Map from short name to full name
@@ -84,6 +88,11 @@ public class KoperClass {
                 generateSetter(classWriter, field, field.isStatic());
             }
         }
+
+        if(constructors.isEmpty()) {
+            generateDefaultConstructor(classWriter);
+        }
+
         checkErrorsOrThrow();
 
         if(staticConstructor != null) {
@@ -104,6 +113,19 @@ public class KoperClass {
         if(!generationErrors.isEmpty()) {
             throw new CompilationException(generationErrors);
         }
+    }
+
+    private void generateDefaultConstructor(ClassWriter classWriter) {
+        MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, new String[0]);
+        visitor.visitVarInsn(Opcodes.ALOAD, 0);
+        visitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", true);
+        for(KoperField field : toObjectInit) {
+            visitor.visitVarInsn(Opcodes.ALOAD, 0);
+            field.initializer.generateBytecode(visitor);
+            visitor.visitFieldInsn(PUTFIELD, name, field.getName(), field.getType().toDescriptor());
+        }
+        visitor.visitInsn(RETURN);
+        visitor.visitEnd();
     }
 
     public String getClassByName(String name) {

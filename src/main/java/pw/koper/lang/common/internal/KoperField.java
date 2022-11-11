@@ -37,11 +37,9 @@ public class KoperField extends KoperClassMember {
             initialValue = null;
             if(initializer != null) {
                 if(isStatic()) {
-                    forClass.staticConstructor.toInitialise.add(this);
+                    forClass.toStaticInit.add(this);
                 } else {
-                    for(KoperConstructor constructor : forClass.constructors) {
-                        constructor.toInitialise.add(this);
-                    }
+                    forClass.toObjectInit.add(this);
                 }
             }
         }

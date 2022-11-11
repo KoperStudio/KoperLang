@@ -10,7 +10,7 @@ import java.lang.String
 class TestClass extends MineObject implements com.hello.World, Hell {
     private setting getting Hell field
     private static getting final net.minecraft.client.Minecraft instances
-    private static getting String hi = "Hello World"
+    private getting String hi = "Hello World"
 
     public void run(){}
 
