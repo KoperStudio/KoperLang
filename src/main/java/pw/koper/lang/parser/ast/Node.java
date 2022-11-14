@@ -1,16 +1,14 @@
 package pw.koper.lang.parser.ast;
 
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.objectweb.asm.MethodVisitor;
-import pw.koper.lang.common.internal.KoperClass;
 import pw.koper.lang.common.internal.KoperMethod;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
 
 public abstract class Node {
-    public void generateBytecode(MethodVisitor visitor) {}
+    public void generateBytecode(KoperMethod context, MethodVisitor visitor) {}
     @SneakyThrows
     public String asString() {
         StringBuilder result = new StringBuilder(this.getClass().getSimpleName()).append("{");

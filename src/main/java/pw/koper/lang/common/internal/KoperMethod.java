@@ -7,13 +7,10 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pw.koper.lang.common.CodeError;
-import pw.koper.lang.common.CompilationException;
-import pw.koper.lang.gen.Instructions;
 import pw.koper.lang.parser.ast.Node;
 import pw.koper.lang.util.IntIterator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,7 +59,7 @@ public class KoperMethod extends KoperClassMember {
             visitor.visitInsn(Opcodes.RETURN);
         } else {
             for(Node node : methodBody) {
-                node.generateBytecode(visitor);
+                node.generateBytecode(, visitor);
             }
         }
         Label lastLabel = new Label();

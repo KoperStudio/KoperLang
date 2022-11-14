@@ -15,7 +15,7 @@ public class LocalVariableStatement extends MethodStatement {
     }
 
     @Override
-    public void generateBytecode(MethodVisitor visitor) {
+    public void generateBytecode(KoperMethod context, MethodVisitor visitor) {
         visitor.visitVarInsn(Opcodes.ALOAD, varId);
     }
 }

@@ -3,10 +3,7 @@ package pw.koper.lang.common.internal;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
-import java.util.Map;
-
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
 
 public class StaticConstructor extends KoperConstructor {
     public StaticConstructor(KoperClass forClass) {
@@ -20,7 +17,7 @@ public class StaticConstructor extends KoperConstructor {
             this.forClass.fields
                     .stream()
                     .filter(field -> field.isStatic() && field.isInitialised() && field.isComplexInitialisation())
-                    .forEach(field -> field.initializer.generateBytecode(staticConstructor));
+                    .forEach(field -> field.initializer.generateBytecode(this, staticConstructor));
             staticConstructor.visitEnd();
         }
     }

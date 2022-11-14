@@ -8,9 +8,7 @@ import org.objectweb.asm.Opcodes;
 import pw.koper.lang.common.CodeError;
 import pw.koper.lang.common.CompilationException;
 import pw.koper.lang.common.KoperCompiler;
-import pw.koper.lang.parser.ast.Node;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -121,7 +119,7 @@ public class KoperClass {
         visitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", true);
         for(KoperField field : toObjectInit) {
             visitor.visitVarInsn(Opcodes.ALOAD, 0);
-            field.initializer.generateBytecode(visitor);
+            field.initializer.generateBytecode(, visitor);
             visitor.visitFieldInsn(PUTFIELD, name, field.getName(), field.getType().toDescriptor());
         }
         visitor.visitInsn(RETURN);
